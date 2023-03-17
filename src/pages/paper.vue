@@ -112,7 +112,7 @@ const activeKey = ref("all-paper")
             <n-input-group>
               <n-input clearable />
               <n-button type="primary" ghost>
-                搜索1
+                搜索
               </n-button>
             </n-input-group>
           </n-space>
