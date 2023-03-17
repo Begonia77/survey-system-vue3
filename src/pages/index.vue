@@ -38,6 +38,7 @@ import QsnFooter from "../pages/layout/qsn-footer.vue";
 
 .n-layout-content {
   background: #E9EEF3;
+  // padding: 20px 70px;
 }
 
 .index {
