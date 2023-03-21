@@ -23,6 +23,16 @@ const publicRoutes = [
     ]
   },
   {
+    path: "/paper/view",
+    name: "paperView",
+    component: () => import("../pages/paper-view.vue"),
+  },
+  {
+    path: "/paper/edit",
+    name: "paperEdit",
+    component: () => import("../pages/paper-edit.vue"),
+  },
+  {
     path: "/login",
     name: "login",
     component: () => import("../pages/login.vue"),

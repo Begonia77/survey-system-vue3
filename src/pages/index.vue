@@ -21,7 +21,6 @@ import QsnFooter from "../pages/layout/qsn-footer.vue";
 </template>
 
 <style lang="scss" scoped>
-
 .n-layout-header {
   background: #1e649f;
   height: 60px;
