@@ -1,7 +1,7 @@
 <script setup>
-import logo from "../../assets/logo.png";
-import { defineComponent, h, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { defineComponent, h, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import logo from '../../assets/logo.png'
 
 const menuOptions = [
   {
@@ -9,49 +9,48 @@ const menuOptions = [
       RouterLink,
       {
         to: {
-          name: "home",
+          name: 'home',
           params: {
-            lang: "zh-CN"
-          }
-        }
+            lang: 'zh-CN',
+          },
+        },
       },
-      { default: () => "首页" }
+      { default: () => '首页' },
     ),
-    key: "go-back-home",
+    key: 'go-back-home',
   },
   {
     label: () => h(
       RouterLink,
       {
         to: {
-          name: "model",
+          name: 'model',
           params: {
-            lang: "zh-CN"
-          }
-        }
+            lang: 'zh-CN',
+          },
+        },
       },
-      { default: () => "模板中心" }
+      { default: () => '模板中心' },
     ),
-    key: "go-back-model",
+    key: 'go-back-model',
   },
   {
     label: () => h(
       RouterLink,
       {
         to: {
-          name: "paper",
+          name: 'paper',
           params: {
-            lang: "zh-CN"
-          }
-        }
+            lang: 'zh-CN',
+          },
+        },
       },
-      { default: () => "我的问卷" }
+      { default: () => '我的问卷' },
     ),
-    key: "go-back-paper",
+    key: 'go-back-paper',
   },
-];
+]
 const activeKey = ref(null)
-
 </script>
 
 <template>
@@ -60,7 +59,7 @@ const activeKey = ref(null)
       <n-image class="logo" fit="fill" :src="logo" />
     </n-grid-item>
     <n-grid-item :span="8">
-      <n-menu class="cen" v-model:value="activeKey" mode="horizontal" :options="menuOptions" />
+      <n-menu v-model:value="activeKey" class="cen" mode="horizontal" :options="menuOptions" />
     </n-grid-item>
     <n-grid-item :span="1">
       <div v-if="!getUserName" class="cen">
@@ -70,19 +69,17 @@ const activeKey = ref(null)
       </div>
     </n-grid-item>
     <!-- <n-grid-item :span="1">
-          <el-dropdown v-else @command="handleCommand" class="admin">
-            <span class="el-dropdown-link">
-              {{ getUserName }}<i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="a">退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </n-grid-item> -->
-
+            <el-dropdown v-else @command="handleCommand" class="admin">
+              <span class="el-dropdown-link">
+                {{ getUserName }}<i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="a">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </n-grid-item> -->
   </n-grid>
 </template>
-
 
 <style lang="scss" scoped>
 .cen {
@@ -107,10 +104,12 @@ const activeKey = ref(null)
   width: 30px;
   margin: 15px 30px;
 }
+
 ::v-deep .n-menu.n-menu--horizontal .n-menu-item-content .n-menu-item-content-header a {
-    color: #fff;
+  color: #fff;
 }
+
 ::v-deep .n-menu.n-menu--horizontal .n-menu-item-content.n-menu-item-content--selected .n-menu-item-content-header a {
-    color: var(--n-item-text-color-active-horizontal);
+  color: var(--n-item-text-color-active-horizontal);
 }
 </style>

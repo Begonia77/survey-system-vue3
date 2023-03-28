@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { FormInst, FormItemRule, useMessage } from 'naive-ui'
+import { computed, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type { FormInst } from 'naive-ui'
+import { FormItemRule, useMessage } from 'naive-ui'
 
-const route = useRoute();
-let paperId = route.query.id;
+const route = useRoute()
+const paperId = route.query.id
 
 // 根据问卷id获取问卷信息
 // const getPaperInfo = async () => {
@@ -42,7 +43,7 @@ qsInfo.list = {
       {
         option_id: 2,
         content: '女',
-      },],
+      }],
     },
     {
       question_id: 2,
@@ -72,7 +73,7 @@ qsInfo.list = {
       {
         option_id: 4,
         content: '12：00之后',
-      },],
+      }],
     },
     {
       question_id: 4,
@@ -95,27 +96,26 @@ qsInfo.list = {
       {
         option_id: 4,
         content: '其他',
-      },],
-    },]
-  },],
+      }],
+    }],
+  }],
 }
 
 // 写一个计算属性，将qsInfo.list.model里面的四个questions对象根据question_order进行排序，并返回
 const sortedQuestions = computed(() => {
   return qsInfo.list.model.map((item: any) => {
     item.questions.sort((a: any, b: any) => {
-      return a.question_order - b.question_order;
+      return a.question_order - b.question_order
     })
-    return item;
+    return item
   })
 })
 const formRef = ref<FormInst | null>(null)
-  const router = useRouter()
+const router = useRouter()
 // 返回上一级的方法
 const goBack = () => {
-  router.go(-1);
+  router.go(-1)
 }
-
 </script>
 
 <template>
@@ -132,40 +132,56 @@ const goBack = () => {
         </n-grid>
       </n-layout-header>
       <n-layout-content>
-        <div class="contain" v-for="item in qsInfo.list.model" :key="item.survey_id">
+        <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="contain">
           <div class="head">
-            <div class="title">{{ item.survey_title }}</div>
-            <div class="des">{{ item.remark }}</div>
+            <div class="title">
+              {{ item.survey_title }}
+            </div>
+            <div class="des">
+              {{ item.remark }}
+            </div>
           </div>
           <div class="body">
-            <n-form ref="formRef" v-for="(question, index) of sortedQuestions[0].questions"
-              :question="question.question_id" :index="index">
+            <n-form
+              v-for="(question, index) of sortedQuestions[0].questions" ref="formRef"
+              :key="question.question_id" :question="question.question_id" :index="index"
+            >
               <n-grid :cols="24" :x-gap="24" :y-gap="24">
-                <n-form-item-gi class="options" v-if="question.type === 1" :span="24" :label="`${index + 1}、${question.question}`"
-                  :path="question.value">
+                <n-form-item-gi
+                  v-if="question.type === 1" class="options" :span="24"
+                  :label="`${index + 1}、${question.question}`" :path="question.value"
+                >
                   <n-radio-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
-                      <n-radio class="option" :value="option.option_id" v-for="option in question.options"
-                        :key="option.option_id">
+                      <n-radio
+                        v-for="option in question.options" :key="option.option_id" class="option"
+                        :value="option.option_id"
+                      >
                         {{ option.content }}
                       </n-radio>
                     </n-space>
                   </n-radio-group>
                 </n-form-item-gi>
-                <n-form-item-gi class="options" :span="24" v-if="question.type === 2" :label="`${index + 1}、${question.question}`"
-                  :path="question.value">
+                <n-form-item-gi
+                  v-if="question.type === 2" class="options" :span="24"
+                  :label="`${index + 1}、${question.question}`" :path="question.value"
+                >
                   <n-checkbox-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
-                      <n-checkbox class="option" :value="option.option_id" v-for="option in question.options"
-                        :key="option.option_id">
+                      <n-checkbox
+                        v-for="option in question.options" :key="option.option_id" class="option"
+                        :value="option.option_id"
+                      >
                         {{ option.content }}
                       </n-checkbox>
                     </n-space>
                   </n-checkbox-group>
                 </n-form-item-gi>
-                <n-form-item-gi class="options" :span="24" v-if="question.type === 3" :label="`${index + 1}、${question.question}`"
-                  :path="question.value">
-                  <n-input style="width: 450px;" v-model:value="question.content" placeholder="" />
+                <n-form-item-gi
+                  v-if="question.type === 3" class="options" :span="24"
+                  :label="`${index + 1}、${question.question}`" :path="question.value"
+                >
+                  <n-input v-model:value="question.content" style="width: 450px;" placeholder="" />
                 </n-form-item-gi>
               </n-grid>
             </n-form>
@@ -227,10 +243,13 @@ const goBack = () => {
         padding: 15px 0;
       }
     }
+
     .body {
       padding: 20px 10px;
+
       .options {
         margin: 5px 0;
+
         .option {
           // display: block;
           margin: 5px 0 0px 10px;
@@ -239,4 +258,5 @@ const goBack = () => {
       }
     }
   }
-}</style>
+}
+</style>

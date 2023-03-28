@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { h, ref, reactive, defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
+import { h, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 // import router from '../router';
-import { constVal } from '../util/constVal';
+import { constVal } from '../util/constVal'
 
 const menuOptions = [
   {
@@ -11,9 +11,9 @@ const menuOptions = [
       {
 
       },
-      { default: () => "全部问卷" }
+      { default: () => '全部问卷' },
     ),
-    key: "all-paper",
+    key: 'all-paper',
   },
   {
     label: () => h(
@@ -21,9 +21,9 @@ const menuOptions = [
       {
 
       },
-      { default: () => "已发布" }
+      { default: () => '已发布' },
     ),
-    key: "published",
+    key: 'published',
   },
   {
     label: () => h(
@@ -31,9 +31,9 @@ const menuOptions = [
       {
 
       },
-      { default: () => "未发布" }
+      { default: () => '未发布' },
     ),
-    key: "unpublished",
+    key: 'unpublished',
   },
   {
     label: () => h(
@@ -41,9 +41,9 @@ const menuOptions = [
       {
 
       },
-      { default: () => "已结束" }
+      { default: () => '已结束' },
     ),
-    key: "has-ended",
+    key: 'has-ended',
   },
 ]
 
@@ -91,45 +91,45 @@ qsInfo.list = {
     ansNum: 10,
     created_time: '2021-03-01 12:00:00',
     state: 2,
-  },],
+  }],
 }
-const activeKey = ref("all-paper")
+const activeKey = ref('all-paper')
 
 // const message = useMessage();
 const operateQs = [
   {
-    label: "创建为模板",
-    key: "create-template"
-  }
+    label: '创建为模板',
+    key: 'create-template',
+  },
 ]
 const statisticalQs = [
   {
-    label: "数据统计",
-    key: "data-statistics"
-  }
+    label: '数据统计',
+    key: 'data-statistics',
+  },
 ]
 const sendQs = [
   {
-    label: "链接",
-    key: "link"
+    label: '链接',
+    key: 'link',
   },
   {
-    label: "二维码",
-    key: "two-dimensional-code"
-  }
+    label: '二维码',
+    key: 'two-dimensional-code',
+  },
 ]
 
 const handleOperate = (key: string | number) => {
   // message.info(String(key))
-  console.log(key)
+  // console.log(key)
 }
 const handleStatistical = (key: string | number) => {
   // message.info(String(key))
-  console.log(key)
+  // console.log(key)
 }
 const handleSend = (key: string | number) => {
   // message.info(String(key))
-  console.log(key)
+  // console.log(key)
 }
 
 const router = useRouter()
@@ -139,46 +139,44 @@ const prePaper = (id: number) => {
   router.push({
     name: 'paperView',
     query: {
-      id: id
-    }
+      id,
+    },
   })
 }
 
 // 操作问卷
 // 删除问卷
 const deletePaper = (id: number) => {
-  console.log('删除问卷',id)
+  // console.log('删除问卷', id)
 }
 // 发布问卷
 const publishPaper = (id: number) => {
-  console.log('发布问卷',id)
+  // console.log('发布问卷', id)
 }
 // 结束问卷
 const endPaper = (id: number) => {
-  console.log('结束问卷',id)
+  // console.log('结束问卷', id)
 }
 // 编辑问卷
 const editPaper = (id: number) => {
   router.push({
     name: 'paperEdit',
     query: {
-      id: id
-    }
+      id,
+    },
   })
   // console.log('编辑问卷',id)
 }
-
 </script>
 
 <template>
   <div class="content">
-
     <n-grid x-gap="50" :cols="24">
       <n-grid-item :span="5">
         <n-button type="info" style="width: 100%;height: 50px;font-size: 16px;margin-bottom: 20px;">
           + 创建问卷
         </n-button>
-        <n-menu class="cen1" v-model:value="activeKey" :options="menuOptions" />
+        <n-menu v-model:value="activeKey" class="cen1" :options="menuOptions" />
       </n-grid-item>
       <n-grid-item :span="18" class="qs">
         <div class="title">
@@ -193,18 +191,18 @@ const editPaper = (id: number) => {
           </n-space>
         </div>
 
-        <div class="card" v-for="item in qsInfo.list.model" :key="item.survey_id">
+        <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="card">
           <div class="head">
             <n-popover trigger="hover" placement="left">
               <template #trigger>
-                <a @click="prePaper(item.survey_id)" class="title">{{ item.survey_title }}</a>
+                <a class="title" @click="prePaper(item.survey_id)">{{ item.survey_title }}</a>
               </template>
               <a @click="prePaper(item.survey_id)">预览问卷</a>
             </n-popover>
             <!-- <span class="title">{{ item.title }}</span> -->
             <span>
-              答卷：{{ item.ansNum }} <i></i>
-              创建时间：{{ item.created_time }} <i></i>
+              答卷：{{ item.ansNum }} <i />
+              创建时间：{{ item.created_time }} <i />
               <n-tag v-if="constVal.UN_PUBLISH.value === item.state" type="warning">
                 未发布
               </n-tag>
@@ -218,12 +216,16 @@ const editPaper = (id: number) => {
           </div>
           <div class="body">
             <span>
-              <n-dropdown v-if="constVal.IS_PUBLISH.value === item.state" trigger="click" :options="sendQs"
-                @select="handleSend">
+              <n-dropdown
+                v-if="constVal.IS_PUBLISH.value === item.state" trigger="click" :options="sendQs"
+                @select="handleSend"
+              >
                 <n-button class="drop">发送问卷</n-button>
               </n-dropdown>
-              <n-dropdown v-if="constVal.UN_PUBLISH.value !== item.state" trigger="click" :options="statisticalQs"
-                @select="handleStatistical">
+              <n-dropdown
+                v-if="constVal.UN_PUBLISH.value !== item.state" trigger="click" :options="statisticalQs"
+                @select="handleStatistical"
+              >
                 <n-button class="drop">统计问卷</n-button>
               </n-dropdown>
               <n-dropdown trigger="click" :options="operateQs" @select="handleOperate">
@@ -231,16 +233,25 @@ const editPaper = (id: number) => {
               </n-dropdown>
             </span>
             <span>
-              <n-button @click="publishPaper(item.survey_id)" v-if="constVal.UN_PUBLISH.value === item.state" type="info" class="btn">
+              <n-button
+                v-if="constVal.UN_PUBLISH.value === item.state" type="info" class="btn"
+                @click="publishPaper(item.survey_id)"
+              >
                 发布
               </n-button>
-              <n-button @click="editPaper(item.survey_id)" v-if="constVal.UN_PUBLISH.value === item.state" type="success" class="btn">
+              <n-button
+                v-if="constVal.UN_PUBLISH.value === item.state" type="success" class="btn"
+                @click="editPaper(item.survey_id)"
+              >
                 编辑
               </n-button>
-              <n-button @click="endPaper(item.survey_id)" v-if="constVal.IS_PUBLISH.value === item.state" type="warning" class="btn">
+              <n-button
+                v-if="constVal.IS_PUBLISH.value === item.state" type="warning" class="btn"
+                @click="endPaper(item.survey_id)"
+              >
                 结束
               </n-button>
-              <n-button @click="deletePaper(item.survey_id)" type="error" class="btn">
+              <n-button type="error" class="btn" @click="deletePaper(item.survey_id)">
                 删除
               </n-button>
             </span>

@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import { reactive } from "vue";
-const qsInfo = reactive<any>({
-  list: [] as any[],
+<script setup>
+import { reactive } from 'vue'
+const qsInfo = reactive({
+  list: [],
 })
 qsInfo.list = {
   model: [{
@@ -43,40 +43,42 @@ qsInfo.list = {
     ansNum: 10,
     created_time: '2021-03-01 12:00:00',
     state: 2,
-  },],
+  }],
 }
 </script>
 
 <template>
   <div style="padding: 20px 75px;">
-  <n-space vertical>
-    <n-input-group style="padding-bottom: 30px;">
-      <span style="margin-right: 10px;">标题</span>
-      <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
-      <n-button type="primary" ghost>
-        搜索
-      </n-button>
-    </n-input-group>
-  </n-space>
-
-  <n-grid x-gap="50" y-gap="40" :cols="9">
-    <n-grid-item :span="3" class="card" v-for="item in qsInfo.list.model" :key="item.survey_id">
-      <div class="title">
-        <a class="tt">{{ item.survey_title }}</a>
-        <n-button style="float: right; --n-height:28px;" strong secondary round type="info">
-          创建
+    <n-space vertical>
+      <n-input-group style="padding-bottom: 30px;">
+        <span style="margin-right: 10px;">标题</span>
+        <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
+        <n-button type="primary" ghost>
+          搜索
         </n-button>
-      </div>
-      <!-- <n-ellipsis :line-clamp="4" class="des">
-        {{ item.remark }}
-      </n-ellipsis> -->
-      <div class="des">{{ item.remark }}</div>
-      <div class="foot">
-        <span>共{{ item.num }}题</span>
-        <span>来自用户：{{ item.created_user_id }}</span>
-      </div>
-    </n-grid-item>
-  </n-grid>
+      </n-input-group>
+    </n-space>
+
+    <n-grid x-gap="50" y-gap="40" :cols="9">
+      <n-grid-item v-for="item in qsInfo.list.model" :key="item.survey_id" :span="3" class="card">
+        <div class="title">
+          <a class="tt">{{ item.survey_title }}</a>
+          <n-button style="float: right; --n-height:28px;" strong secondary round type="info">
+            创建
+          </n-button>
+        </div>
+        <!-- <n-ellipsis :line-clamp="4" class="des">
+            {{ item.remark }}
+          </n-ellipsis> -->
+        <div class="des">
+          {{ item.remark }}
+        </div>
+        <div class="foot">
+          <span>共{{ item.num }}题</span>
+          <span>来自用户：{{ item.created_user_id }}</span>
+        </div>
+      </n-grid-item>
+    </n-grid>
   </div>
 </template>
 
@@ -84,6 +86,7 @@ qsInfo.list = {
 a {
   cursor: pointer;
 }
+
 .card {
   background-color: #fff;
   border-radius: 10px;
@@ -102,6 +105,7 @@ a {
     padding: 10px 0;
     border-bottom: solid 1px #ddd;
     margin-bottom: 10px;
+
     .tt {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -110,6 +114,7 @@ a {
       width: 78%;
     }
   }
+
   .des {
     font-size: 14px;
     color: #666;
@@ -123,6 +128,7 @@ a {
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
   }
+
   .foot {
     display: flex;
     justify-content: space-between;

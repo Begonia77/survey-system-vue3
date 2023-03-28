@@ -3,7 +3,9 @@
 
 <template>
   <div id="app">
-    <router-view />
+    <n-message-provider>
+      <router-view />
+    </n-message-provider>
   </div>
 </template>
 
@@ -11,6 +13,7 @@
 .el-message {
   margin-top: 60px !important;
 }
+
 html,
 body,
 #app {

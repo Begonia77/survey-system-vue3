@@ -9,15 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "lodash-es": "^4.17.21",
+    "naive-ui": "^2.34.3",
+    "nanoid": "^4.0.2",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
+    "@dark15/eslint-config": "^1.0.4",
+    "@types/lodash-es": "^4.17.7",
     "@vitejs/plugin-vue": "^4.0.0",
-    "naive-ui": "^2.34.3",
-    "node-sass": "^8.0.0",
+    "eslint": "^8.36.0",
     "sass": "^1.59.3",
     "sass-loader": "^13.2.0",
+    "typescript": "^5.0.2",
     "vite": "^4.1.0"
   }
 }
