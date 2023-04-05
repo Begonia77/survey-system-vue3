@@ -17,6 +17,7 @@ const state = reactive({
   updataTitle: false,
   updataRemark: false,
   isNewQs: false,
+  gpt: Array.from({ length: 10 }, () => false),
 })
 
 // 根据问卷id获取问卷信息
@@ -190,6 +191,114 @@ const moveDownQs = (index) => {
   qsInfo.list.model[0].questions[index + 1] = tempQs
 }
 
+// gpt相关
+const saveDialog = ref(
+  [
+    {
+      title: '你是否熬夜？',
+      options: [
+        {
+          text: '是',
+        },
+        {
+          text: '否',
+        },
+      ],
+    }, {
+      title: '几点睡觉？',
+      options: [
+        {
+          text: '12点',
+        },
+        {
+          text: '1点',
+        },
+        {
+          text: '2点',
+        },
+        {
+          text: '3点',
+        },
+      ],
+    }, {
+      title: '你几点睡觉？',
+      options: [
+        {
+          text: '12点',
+        },
+        {
+          text: '1点',
+        },
+        {
+          text: '2点',
+        },
+        {
+          text: '3点',
+        },
+      ],
+    }, {
+      title: '我几点睡觉？',
+      options: [
+        {
+          text: '12点',
+        },
+        {
+          text: '1点',
+        },
+        {
+          text: '2点',
+        },
+        {
+          text: '3点',
+        },
+      ],
+    }, {
+      title: '他几点睡觉？',
+      options: [
+        {
+          text: '12点',
+        },
+        {
+          text: '1点',
+        },
+        {
+          text: '2点',
+        },
+        {
+          text: '3点',
+        },
+      ],
+    }],
+)
+// 将saveDialog数组里的options里添加option_id并且将text转化为content
+// const saveDialogWithId = computed(() => {
+//   const temp = []
+//   saveDialog.value.forEach((item, index) => {
+//     const tempItem = {
+//       question_id: index + 1,
+//       question: item.title,
+//       type: 1,
+//       value: null,
+//       options: [],
+//     }
+//     item.options.forEach((option, optionIndex) => {
+//       tempItem.options.push({
+//         option_id: optionIndex + 1,
+//         content: option.text,
+//       })
+//     })
+//     temp.push(tempItem)
+//   })
+//   return temp
+// })
+// 将1、2、3转化为A、B、C
+const convertNumToLetter = (num) => {
+  const letter = String.fromCharCode(64 + num)
+  return letter
+}
+const gptShow = (index) => {
+  state.gpt[index] = true
+}
 // 添加题目
 
 const addBinaryQuestion = async () => {
@@ -263,6 +372,34 @@ const addLongAnswerQuestion = async () => {
   })
   state.isNewQs = true
 }
+const gptAddRadioQuestion = async (index) => {
+  for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
+    saveDialog.value[index].options[i].option_id = i + 1
+    saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
+  }
+  qsInfo.list.model[0].questions.push({
+    question_id: await nanoid(),
+    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question: saveDialog.value[index].title,
+    type: 1,
+    value: null,
+    options: saveDialog.value[index].options,
+  })
+}
+const gptAddCheckboxQuestion = async (index) => {
+  for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
+    saveDialog.value[index].options[i].option_id = i + 1
+    saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
+  }
+  qsInfo.list.model[0].questions.push({
+    question_id: await nanoid(),
+    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question: saveDialog.value[index].title,
+    type: 2,
+    value: null,
+    options: saveDialog.value[index].options,
+  })
+}
 
 const submitEdit = () => {
   for (const comp of compRefList.value) {
@@ -304,7 +441,7 @@ const goBack = () => {
       <div class="left">
         <n-collapse :default-expanded-names="['1', '2']" style="width: 95%;">
           <n-collapse-item title="题目类型" name="1">
-            <n-collapse :default-expanded-names="['1', '2', '3']" style="width: 100%;margin: 0;">
+            <n-collapse :default-expanded-names="['1', '2']" style="width: 100%;margin: 0;">
               <n-collapse-item title="选择题" name="1">
                 <n-button style="width: 80%;" quaternary round @click="addBinaryQuestion">
                   判断题
@@ -324,17 +461,6 @@ const goBack = () => {
                   多行填空
                 </n-button>
               </n-collapse-item>
-              <n-collapse-item title="个人信息" name="3">
-                <n-button style="width: 80%;" quaternary round>
-                  姓名
-                </n-button>
-                <n-button style="width: 80%;" quaternary round>
-                  性别
-                </n-button>
-                <n-button style="width: 80%;" quaternary round>
-                  手机号
-                </n-button>
-              </n-collapse-item>
             </n-collapse>
           </n-collapse-item>
           <n-collapse-item title="问卷大纲" name="2">
@@ -349,7 +475,7 @@ const goBack = () => {
         </n-collapse>
       </div>
     </n-grid-item>
-    <n-grid-item :span="12">
+    <n-grid-item :span="11">
       <n-layout-content>
         <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="contain">
           <div class="head">
@@ -393,13 +519,113 @@ const goBack = () => {
         </div>
       </n-layout-content>
     </n-grid-item>
-    <n-grid-item :span="7">
-      <!-- <div class="green" /> -->
+    <n-grid-item :span="8">
+      <div class="chat">
+        <div class="gpt">
+          <div v-show="saveDialog !== undefined">
+            这是我为您提供的题目：
+          </div>
+          <div v-show="saveDialog === undefined" class="title">
+            <div>目前还没有您的提问！</div>
+            <div>快发送问卷标题或者问题关键词给我吧！</div>
+            <div>我会随机给您生成问题，供您选择！</div>
+          </div>
+          <div v-for="(item, index) of saveDialog" :key="item.title" :item="item.title" :index="index" class="item">
+            <n-grid :x-gap="6" :cols="6" @mouseenter="gptShow(index)" @mouseleave="state.gpt[index] = false">
+              <n-grid-item :span="3">
+                {{ index + 1 }}、{{ item.title }}
+                <div v-for="(option, x) of item.options" :key="option.text" :option="option.text" :index="x">
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ convertNumToLetter(x + 1) }}、{{ option.text }}
+                </div>
+              </n-grid-item>
+              <n-grid-item :span="3" class="handle">
+                <div v-show="state.gpt[index]">
+                  <n-button strong secondary round type="success" @click="gptAddRadioQuestion(index)">
+                    添加为单选题
+                  </n-button>
+                </div>
+                <div v-show="state.gpt[index]">
+                  <n-button strong secondary round type="info" @click="gptAddCheckboxQuestion(index)">
+                    添加为多选题
+                  </n-button>
+                </div>
+              </n-grid-item>
+            </n-grid>
+          </div>
+        </div>
+        <div class="user">
+          <n-input-group>
+            <span style="line-height: 35px; margin-right: 8px;">关键词</span>
+            <n-input :style="{ width: '50%' }" placeholder="请输入关键词" />
+            <n-button type="primary" ghost>
+              搜索
+            </n-button>
+          </n-input-group>
+        </div>
+        <div class="tip">
+          <div>Tip：</div>
+          <div>发送问卷的标题或者问题关键词，会随机为您推荐题目。</div>
+          <div>点击题目右边的按钮，选择需要的题目添加为单选题或者多选题。</div>
+          <div>可多次获取随机的题目。</div>
+        </div>
+      </div>
     </n-grid-item>
   </n-grid>
 </template>
 
 <style lang="scss" scoped>
+.chat {
+  background: #fff;
+  width: 90%;
+  height: calc(100vh - 103px);
+  margin: 0 auto;
+  border-radius: 10px;
+  padding: 10px 10px;
+  overflow: auto;
+  .gpt {
+    height: 54vh;
+    overflow: auto;
+    border: 1px solid #ccc;
+    background: #fdfdfd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    .title {
+      text-align: center;
+      margin: 60px 0;
+      font-size: 20px;
+      div {
+        margin: 15px 0;
+      }
+    }
+    .item {
+      padding: 0 20px;
+      margin-top: 10px;
+      min-height: 80px;
+      .handle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+
+        .n-button {
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+  .user {
+    padding: 10px;
+    margin: 0 0 10px 40px;
+  }
+  .tip {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+  }
+}
 .n-layout-header {
   background: #1e649f;
   height: 60px;
@@ -465,7 +691,7 @@ const goBack = () => {
 
   .contain {
     background: #fff;
-    width: 87%;
+    width: 90%;
     height: calc(100vh - 125px);
     margin: 0 auto;
     border-radius: 10px;
@@ -492,6 +718,7 @@ const goBack = () => {
     .body {
       padding: 20px 10px;
     }
+
   }
 }
 

@@ -1,5 +1,6 @@
 <script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 const qsInfo = reactive({
   list: [],
 })
@@ -45,6 +46,17 @@ qsInfo.list = {
     state: 2,
   }],
 }
+
+const router = useRouter()
+
+const prePaper = (id) => {
+  router.push({
+    name: 'paperView',
+    query: {
+      id,
+    },
+  })
+}
 </script>
 
 <template>
@@ -62,7 +74,7 @@ qsInfo.list = {
     <n-grid x-gap="50" y-gap="40" :cols="9">
       <n-grid-item v-for="item in qsInfo.list.model" :key="item.survey_id" :span="3" class="card">
         <div class="title">
-          <a class="tt">{{ item.survey_title }}</a>
+          <a class="tt" @click="prePaper(item.survey_id)">{{ item.survey_title }}</a>
           <n-button style="float: right; --n-height:28px;" strong secondary round type="info">
             创建
           </n-button>
