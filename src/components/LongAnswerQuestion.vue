@@ -35,7 +35,8 @@ const finishEdit = () => {
   qsRef.value?.validate((errors) => {
     if (!errors) {
       qsData.qsTitle = clone(topicInfo.name)
-      state.isEdit = !state.isEdit
+      state.isEdit = false
+      state.isNew = false
     }
     else {
       // console.log(errors)
@@ -46,12 +47,12 @@ const finishEdit = () => {
 // 取消编辑
 const cancelEdit = () => {
   topicInfo.name = clone(qsData.qsTitle)
-  state.isEdit = !state.isEdit
+  state.isEdit = false
 }
 
 // 切换编辑模式
 const switchEdit = () => {
-  state.isEdit = !state.isEdit
+  state.isEdit = true
 }
 // 删除题目
 const deleteQs = () => {

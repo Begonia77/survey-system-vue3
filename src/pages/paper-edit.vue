@@ -18,107 +18,142 @@ const state = reactive({
   updataRemark: false,
   isNewQs: false,
   gpt: Array.from({ length: 10 }, () => false),
+  isNewPaper: false,
 })
 
 // 根据问卷id获取问卷信息
-// const getPaperInfo = async () => {
-//   const res = await getPaperInfoById(paperId);
-//   if (res.code === 200) {
-//     paperInfo = res.data;
-//   }
-// }
+const getPaperInfo = async () => {
+  const res = await getPaperInfoById(paperId);
+  if (res.code === 200) {
+    paperInfo = res.data;
+  }
+}
 
 const qsInfo = reactive({
   list: [],
 })
 const compRefList = ref([])
-qsInfo.list = {
-  model: [{
-    survey_id: 1,
-    survey_title: '大学生熬夜情况调查',
-    remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-    num: 100,
-    created_user_id: '李四',
-    ansNum: 100,
-    created_time: '2023-05-01 12:00:00',
-    state: 2,
-    // 以下是题目列表
-    questions: [{
-      question_id: 1,
-      question_order: 1,
-      question: '你的性别是？',
-      type: 1,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '男',
+if (paperId) {
+  qsInfo.list = {
+    model: [{
+      survey_id: 1,
+      survey_title: '大学生熬夜情况调查',
+      remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
+      num: 100,
+      created_user_id: '李四',
+      ansNum: 100,
+      created_time: '2023-04-01 12:00:00',
+      state: 2,
+      // 以下是题目列表
+      questions: [{
+        question_id: 1,
+        question_order: 1,
+        question: '你的性别是？',
+        type: 1,
+        value: null,
+        options: [{
+          option_id: 1,
+          content: '男',
+        },
+        {
+          option_id: 2,
+          content: '女',
+        }],
       },
       {
-        option_id: 2,
-        content: '女',
-      }],
-    },
-    {
-      question_id: 2,
-      question_order: 6,
-      question: '你的年级是？',
-      type: 3,
-      content: null,
-    },
-    {
-      question_id: 5,
-      question_order: 7,
-      question: '你的优点是？',
-      type: 4,
-      content: null,
-    },
-    {
-      question_id: 3,
-      question_order: 3,
-      question: '您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？',
-      type: 1,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '10：00之前',
+        question_id: 2,
+        question_order: 6,
+        question: '你的年级是？',
+        type: 3,
+        content: null,
       },
       {
-        option_id: 2,
-        content: '10：00---11：00',
+        question_id: 5,
+        question_order: 7,
+        question: '你的优点是？',
+        type: 4,
+        content: null,
       },
       {
-        option_id: 3,
-        content: '11：00---12：00',
+        question_id: 3,
+        question_order: 3,
+        question: '您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？',
+        type: 1,
+        value: null,
+        options: [{
+          option_id: 1,
+          content: '10：00之前',
+        },
+        {
+          option_id: 2,
+          content: '10：00---11：00',
+        },
+        {
+          option_id: 3,
+          content: '11：00---12：00',
+        },
+        {
+          option_id: 4,
+          content: '12：00之后',
+        }],
       },
       {
-        option_id: 4,
-        content: '12：00之后',
-      }],
-    },
-    {
-      question_id: 4,
-      question_order: 2,
-      question: '熬夜的原因？',
-      type: 2,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '学习',
-      },
-      {
-        option_id: 2,
-        content: '工作',
-      },
-      {
-        option_id: 3,
-        content: '娱乐',
-      },
-      {
-        option_id: 4,
-        content: '其他',
+        question_id: 4,
+        question_order: 2,
+        question: '熬夜的原因？',
+        type: 2,
+        value: null,
+        options: [{
+          option_id: 1,
+          content: '学习',
+        },
+        {
+          option_id: 2,
+          content: '工作',
+        },
+        {
+          option_id: 3,
+          content: '娱乐',
+        },
+        {
+          option_id: 4,
+          content: '其他',
+        }],
       }],
     }],
-  }],
+  }
+}
+else {
+  qsInfo.list = {
+    model: [{
+      survey_id: 1,
+      survey_title: '请输入问卷标题',
+      remark: '',
+      num: 0,
+      created_user_id: '李四',
+      ansNum: 0,
+      created_time: '2023-04-06 12:00:00',
+      state: 2,
+      questions: [],
+      // 以下是题目列表
+      // questions: [{
+      //   question_id: 1,
+      //   question_order: 1,
+      //   question: '',
+      //   type: 1,
+      //   value: null,
+      //   options: [{
+      //     option_id: 1,
+      //     content: '',
+      //   },
+      //   {
+      //     option_id: 2,
+      //     content: '',
+      //   }],
+      // }],
+    }],
+  }
+  state.isNewPaper = true
 }
 
 // 修改问卷标题和描述相关
@@ -175,9 +210,9 @@ const deleteQs = (id) => {
 // 上移题目
 const moveUpQs = (index) => {
   const temp = qsInfo.list.model[0].questions[index].question_order
-  const tempQs = qsInfo.list.model[0].questions[index]
   qsInfo.list.model[0].questions[index].question_order = qsInfo.list.model[0].questions[index - 1].question_order
   qsInfo.list.model[0].questions[index - 1].question_order = temp
+  const tempQs = qsInfo.list.model[0].questions[index]
   qsInfo.list.model[0].questions[index] = qsInfo.list.model[0].questions[index - 1]
   qsInfo.list.model[0].questions[index - 1] = tempQs
 }
@@ -270,27 +305,7 @@ const saveDialog = ref(
       ],
     }],
 )
-// 将saveDialog数组里的options里添加option_id并且将text转化为content
-// const saveDialogWithId = computed(() => {
-//   const temp = []
-//   saveDialog.value.forEach((item, index) => {
-//     const tempItem = {
-//       question_id: index + 1,
-//       question: item.title,
-//       type: 1,
-//       value: null,
-//       options: [],
-//     }
-//     item.options.forEach((option, optionIndex) => {
-//       tempItem.options.push({
-//         option_id: optionIndex + 1,
-//         content: option.text,
-//       })
-//     })
-//     temp.push(tempItem)
-//   })
-//   return temp
-// })
+
 // 将1、2、3转化为A、B、C
 const convertNumToLetter = (num) => {
   const letter = String.fromCharCode(64 + num)
@@ -300,7 +315,7 @@ const gptShow = (index) => {
   state.gpt[index] = true
 }
 // 添加题目
-
+let order = 1
 const addBinaryQuestion = async () => {
   // qsInfo.list.model[0].questions.push({
   //   question_id: await nanoid(),
@@ -319,9 +334,13 @@ const addBinaryQuestion = async () => {
   // state.isNewQs = true
 }
 const addRadioQuestion = async () => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: '',
     type: 1,
     value: null,
@@ -336,9 +355,13 @@ const addRadioQuestion = async () => {
   state.isNewQs = true
 }
 const addCheckboxQuestion = async () => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: '',
     type: 2,
     value: null,
@@ -353,9 +376,13 @@ const addCheckboxQuestion = async () => {
   state.isNewQs = true
 }
 const addShortAnswerQuestion = async () => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: '',
     type: 3,
     content: null,
@@ -363,9 +390,13 @@ const addShortAnswerQuestion = async () => {
   state.isNewQs = true
 }
 const addLongAnswerQuestion = async () => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: '',
     type: 4,
     content: null,
@@ -373,13 +404,17 @@ const addLongAnswerQuestion = async () => {
   state.isNewQs = true
 }
 const gptAddRadioQuestion = async (index) => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
     saveDialog.value[index].options[i].option_id = i + 1
     saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
   }
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: saveDialog.value[index].title,
     type: 1,
     value: null,
@@ -387,13 +422,17 @@ const gptAddRadioQuestion = async (index) => {
   })
 }
 const gptAddCheckboxQuestion = async (index) => {
+  if (qsInfo.list.model[0].questions.length === 0)
+    order = 1
+  else
+    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
   for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
     saveDialog.value[index].options[i].option_id = i + 1
     saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
   }
   qsInfo.list.model[0].questions.push({
     question_id: await nanoid(),
-    question_order: qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1,
+    question_order: order,
     question: saveDialog.value[index].title,
     type: 2,
     value: null,

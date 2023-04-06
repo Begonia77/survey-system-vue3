@@ -42,6 +42,16 @@ const publicRoutes = [
     name: 'register',
     component: () => import('../pages/register.vue'),
   },
+  {
+    path: '/paper/fill',
+    name: 'paperFill',
+    component: () => import('../pages/paper-fill.vue'),
+  },
+  {
+    path: '/paper/analyse',
+    name: 'paperAnalyse',
+    component: () => import('../pages/paper-analyse.vue'),
+  },
 ]
 const router = new createRouter({
   history: createWebHashHistory(),

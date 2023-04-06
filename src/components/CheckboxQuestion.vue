@@ -48,7 +48,8 @@ const finishEdit = () => {
     if (!errors) {
       qsData.qsTitle = clone(topicInfo.name)
       qsData.qsOptions = cloneDeep(topicInfo.options)
-      state.isEdit = !state.isEdit
+      state.isEdit = false
+      state.isNew = false
     }
     else {
       // console.log(errors)
@@ -60,12 +61,12 @@ const finishEdit = () => {
 const cancelEdit = () => {
   topicInfo.name = clone(qsData.qsTitle)
   topicInfo.options = cloneDeep(qsData.qsOptions)
-  state.isEdit = !state.isEdit
+  state.isEdit = false
 }
 
 // 切换编辑模式
 const switchEdit = () => {
-  state.isEdit = !state.isEdit
+  state.isEdit = true
 }
 // 删除题目
 const deleteQs = () => {

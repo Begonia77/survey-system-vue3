@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import { h, reactive, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-// import router from '../router';
+import { useDialog, useMessage } from 'naive-ui'
+import { useClipboard } from '@vueuse/core'
 import { constVal } from '../util/constVal'
+import { getPapersList } from '../api/all-paper'
+import { update } from '../api/update-paper'
 
 const menuOptions = [
   {
@@ -13,17 +16,7 @@ const menuOptions = [
       },
       { default: () => '全部问卷' },
     ),
-    key: 'all-paper',
-  },
-  {
-    label: () => h(
-      'span',
-      {
-
-      },
-      { default: () => '已发布' },
-    ),
-    key: 'published',
+    key: -1,
   },
   {
     label: () => h(
@@ -33,7 +26,17 @@ const menuOptions = [
       },
       { default: () => '未发布' },
     ),
-    key: 'unpublished',
+    key: 0,
+  },
+  {
+    label: () => h(
+      'span',
+      {
+
+      },
+      { default: () => '已发布' },
+    ),
+    key: 1,
   },
   {
     label: () => h(
@@ -43,96 +46,154 @@ const menuOptions = [
       },
       { default: () => '已结束' },
     ),
-    key: 'has-ended',
+    key: 2,
   },
 ]
+const activeKey = ref(-1)
+const state = reactive({
+  modelRemark: '',
+  createModelShow: false,
+  modelId: 0,
+})
 
+const message = useMessage()
+const dialog = useDialog()
+const { copy } = useClipboard()
+const router = useRouter()
 const qsInfo = reactive<any>({
   list: [] as any[],
 })
 
-qsInfo.list = {
-  model: [{
-    survey_id: 1,
-    survey_title: '大学生熬夜情况调查大学生熬夜情况调查',
-    remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-    num: 100,
-    created_user_id: '李四',
-    ansNum: 100,
-    created_time: '2023-05-01 12:00:00',
-    state: 2,
-  },
-  {
-    survey_id: 2,
-    survey_title: '学生疫情防控每日报表',
-    remark: '学生疫情防控每日报表',
-    num: 48,
-    created_user_id: '张三',
-    ansNum: 100,
-    created_time: '2021-05-04 12:00:00',
-    state: 0,
-  },
-  {
-    survey_id: 3,
-    survey_title: '大学生恋爱情况调查',
-    remark: '大学生恋爱情况调查大学生恋爱情况调查',
-    num: 59,
-    created_user_id: '六六',
-    ansNum: 1009,
-    created_time: '2022-05-01 12:00:00',
-    state: 1,
-  },
-  {
-    survey_id: 4,
-    survey_title: '大学生恋爱情况调查',
-    remark: '大学生恋爱情况调查大学生恋爱情况调查',
-    num: 30,
-    created_user_id: '王五',
-    ansNum: 10,
-    created_time: '2021-03-01 12:00:00',
-    state: 2,
-  }],
-}
-const activeKey = ref('all-paper')
+// qsInfo.list = [{
+//   survey_id: 1,
+//   survey_title: '大学生熬夜情况调查大学生熬夜情况调查',
+//   remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
+//   num: 100,
+//   created_user_id: '李四',
+//   count_fill_in: 100,
+//   created_time: '2023-05-01 12:00:00',
+//   state: 2,
+// },
+// {
+//   survey_id: 2,
+//   survey_title: '学生疫情防控每日报表',
+//   remark: '学生疫情防控每日报表',
+//   num: 48,
+//   created_user_id: '张三',
+//   count_fill_in: 100,
+//   created_time: '2021-05-04 12:00:00',
+//   state: 0,
+// },
+// {
+//   survey_id: 3,
+//   survey_title: '大学生恋爱情况调查',
+//   remark: '大学生恋爱情况调查大学生恋爱情况调查',
+//   num: 59,
+//   created_user_id: '六六',
+//   count_fill_in: 1009,
+//   created_time: '2022-05-01 12:00:00',
+//   state: 1,
+// },
+// {
+//   survey_id: 4,
+//   survey_title: '大学生恋爱情况调查',
+//   remark: '大学生恋爱情况调查大学生恋爱情况调查',
+//   num: 30,
+//   created_user_id: '王五',
+//   count_fill_in: 10,
+//   created_time: '2021-03-01 12:00:00',
+//   state: 2,
+// },
+// ]
 
-// const message = useMessage();
+const getAllPaperList = async () => {
+  const res = await getPapersList()
+  qsInfo.list = res.data
+}
+
+// 根据问卷状态state筛选问卷，用计算属性实现, 0未发布，1已发布，2已结束
+const filterQs = (state: number) => {
+  if (state === -1)
+    return qsInfo.list
+
+  return qsInfo.list.filter(item => item.state === state)
+}
+
 const operateQs = [
   {
     label: '创建为模板',
-    key: 'create-template',
+    key: 1,
   },
 ]
 const statisticalQs = [
   {
     label: '数据统计',
-    key: 'data-statistics',
+    key: 1,
   },
 ]
 const sendQs = [
   {
     label: '链接',
-    key: 'link',
+    key: 1,
   },
   {
     label: '二维码',
-    key: 'two-dimensional-code',
+    key: 2,
   },
 ]
 
-const handleOperate = (key: string | number) => {
-  // message.info(String(key))
-  // console.log(key)
-}
-const handleStatistical = (key: string | number) => {
-  // message.info(String(key))
-  // console.log(key)
-}
-const handleSend = (key: string | number) => {
-  // message.info(String(key))
-  // console.log(key)
+const copyLink = (url: string) => {
+  dialog.success({
+    title: '问卷链接',
+    content: url,
+    positiveText: '复制并关闭',
+    onPositiveClick: async () => {
+      await copy(url)
+      message.success('复制成功')
+    },
+  })
 }
 
-const router = useRouter()
+const handleOperate = (key: string | number, id: number) => {
+  state.modelId = id
+  state.createModelShow = true
+}
+const submitModel = () => {
+  // 创建模板
+  message.success('模板创建成功')
+  console.log(state.modelId)
+  console.log(state.modelRemark)
+  state.modelRemark = ''
+  // TODO:创建模板
+}
+const cancelModel = () => {
+  message.info('模板创建取消')
+  state.modelRemark = ''
+  state.createModelShow = false
+}
+const handleStatistical = (key: string | number, id: number) => {
+  // 跳转到统计页面
+  router.push({
+    name: 'paperAnalyse',
+    query: {
+      id,
+    },
+  })
+}
+const handleSend = (key: string | number, id: number) => {
+  if (key === 1) {
+    const paperLink = `${constVal.baseUrl}/paper/fill?id=${id}`
+    copyLink(paperLink)
+  }
+  else {
+    // router.push({
+    //   name: 'paperQrcode',
+    // })
+    console.log('二维码')
+    console.log(id)
+    // TODO:生成二维码
+  }
+}
 
 // 预览问卷
 const prePaper = (id: number) => {
@@ -145,17 +206,12 @@ const prePaper = (id: number) => {
 }
 
 // 操作问卷
-// 删除问卷
-const deletePaper = (id: number) => {
-  // console.log('删除问卷', id)
-}
-// 发布问卷
-const publishPaper = (id: number) => {
-  // console.log('发布问卷', id)
-}
-// 结束问卷
-const endPaper = (id: number) => {
-  // console.log('结束问卷', id)
+// 0未发布  1已发布  2已结束  3模板  4删除
+// 新增问卷
+const addPaper = () => {
+  router.push({
+    name: 'paperEdit',
+  })
 }
 // 编辑问卷
 const editPaper = (id: number) => {
@@ -167,13 +223,86 @@ const editPaper = (id: number) => {
   })
   // console.log('编辑问卷',id)
 }
+// 发布问卷
+const publishPaper = (id: number) => {
+  dialog.warning({
+    title: '提示',
+    content: '是否发布问卷？发布后不能进行修改！',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      update.postPaperPublish(id).then((res) => {
+        if (res.status === 200) {
+          message.success('发布成功')
+          getAllPaperList()
+        }
+        else {
+          message.error('发布失败')
+        }
+      })
+    },
+    onNegativeClick: () => {
+      message.warning('取消发布')
+    },
+  })
+}
+// 结束问卷
+const endPaper = (id: number) => {
+  dialog.success({
+    title: '提示',
+    content: '是否结束收集问卷？结束后将不能收集问卷！',
+    positiveText: '结束',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      update.postPaperEnd(id).then((res) => {
+        if (res.status === 200) {
+          message.success('发布成功')
+          getAllPaperList()
+        }
+        else {
+          message.error('发布失败')
+        }
+      })
+    },
+    onNegativeClick: () => {
+      message.warning('取消结束')
+    },
+  })
+}
+// 删除问卷
+const deletePaper = (id: number) => {
+  dialog.error({
+    title: '警告',
+    content: '是否删除问卷？删除后将不能恢复！',
+    positiveText: '删除',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      update.postPaperUnpublish(id).then((res) => {
+        if (res.status === 200) {
+          message.success('删除成功')
+          getAllPaperList()
+        }
+        else {
+          message.error('删除失败')
+        }
+      })
+    },
+    onNegativeClick: () => {
+      message.warning('取消删除')
+    },
+  })
+}
+
+onMounted(() => {
+  getAllPaperList()
+})
 </script>
 
 <template>
   <div class="content">
     <n-grid x-gap="50" :cols="24">
       <n-grid-item :span="5">
-        <n-button type="info" style="width: 100%;height: 50px;font-size: 16px;margin-bottom: 20px;">
+        <n-button type="info" style="width: 100%;height: 50px;font-size: 16px;margin-bottom: 20px;" @click="addPaper">
           + 创建问卷
         </n-button>
         <n-menu v-model:value="activeKey" class="cen1" :options="menuOptions" />
@@ -191,7 +320,7 @@ const editPaper = (id: number) => {
           </n-space>
         </div>
 
-        <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="card">
+        <div v-for="item in filterQs(activeKey)" v-show="item.state !== 4" :key="item.survey_id" class="card">
           <div class="head">
             <n-popover trigger="hover" placement="left">
               <template #trigger>
@@ -201,7 +330,7 @@ const editPaper = (id: number) => {
             </n-popover>
             <!-- <span class="title">{{ item.title }}</span> -->
             <span>
-              答卷：{{ item.ansNum }} <i />
+              答卷：{{ item.count_fill_in }} <i />
               创建时间：{{ item.created_time }} <i />
               <n-tag v-if="constVal.UN_PUBLISH.value === item.state" type="warning">
                 未发布
@@ -218,17 +347,17 @@ const editPaper = (id: number) => {
             <span>
               <n-dropdown
                 v-if="constVal.IS_PUBLISH.value === item.state" trigger="click" :options="sendQs"
-                @select="handleSend"
+                @select="handleSend($event, item.survey_id)"
               >
                 <n-button class="drop">发送问卷</n-button>
               </n-dropdown>
               <n-dropdown
                 v-if="constVal.UN_PUBLISH.value !== item.state" trigger="click" :options="statisticalQs"
-                @select="handleStatistical"
+                @select="handleStatistical($event, item.survey_id)"
               >
                 <n-button class="drop">统计问卷</n-button>
               </n-dropdown>
-              <n-dropdown trigger="click" :options="operateQs" @select="handleOperate">
+              <n-dropdown trigger="click" :options="operateQs" @select="handleOperate($event, item.survey_id)">
                 <n-button class="drop">操作问卷</n-button>
               </n-dropdown>
             </span>
@@ -260,6 +389,18 @@ const editPaper = (id: number) => {
       </n-grid-item>
     </n-grid>
   </div>
+
+  <n-modal
+    v-model:show="state.createModelShow" :trap-focus="false" :mask-closable="false" preset="dialog"
+    title="请输入模板描述" positive-text="确认" negative-text="取消" @positive-click="submitModel()"
+    @negative-click="cancelModel"
+  >
+    <n-input v-model:value="state.modelRemark" type="textarea" placeholder="请输入描述" clearable />
+  </n-modal>
+<!--
+  <n-button @click="handleConfirm">
+    警告
+  </n-button> -->
 </template>
 
 <style lang="scss" scoped>
