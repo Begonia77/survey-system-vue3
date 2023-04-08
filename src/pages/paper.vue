@@ -301,13 +301,13 @@ onMounted(() => {
 <template>
   <div class="content">
     <n-grid x-gap="50" :cols="24">
-      <n-grid-item :span="5">
+      <n-grid-item :span="6" style="margin-left: 60px;">
         <n-button type="info" style="width: 100%;height: 50px;font-size: 16px;margin-bottom: 20px;" @click="addPaper">
           + 创建问卷
         </n-button>
         <n-menu v-model:value="activeKey" class="cen1" :options="menuOptions" />
       </n-grid-item>
-      <n-grid-item :span="18" class="qs">
+      <n-grid-item :span="17" class="qs">
         <div class="title">
           <h2>问卷列表</h2>
           <n-space vertical>

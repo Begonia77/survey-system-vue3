@@ -10,7 +10,7 @@ import QsnFooter from '../pages/layout/qsn-footer.vue'
         <n-layout-header>
           <QsnHeader />
         </n-layout-header>
-        <n-layout has-sider>
+        <n-layout has-sider class="he">
           <n-layout-content content-style="padding: 24px;">
             <router-view />
           </n-layout-content>
@@ -29,7 +29,9 @@ import QsnFooter from '../pages/layout/qsn-footer.vue'
   height: 60px;
   line-height: 60px;
 }
-
+.he {
+  height: calc(100vh - 103px)
+}
 .n-layout-footer {
   background: #545c64;
   padding: 10px;

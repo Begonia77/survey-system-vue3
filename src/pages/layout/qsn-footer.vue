@@ -3,7 +3,7 @@
 
 <template>
   <div class="footer">
-    <span class="info">web 大作业 问卷系统</span>
+    <span class="info">基于自然语言处理技术的智能问卷系统</span>
   </div>
 </template>
 

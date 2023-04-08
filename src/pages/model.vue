@@ -7,8 +7,8 @@ const qsInfo = reactive({
 qsInfo.list = {
   model: [{
     survey_id: 1,
-    survey_title: '大学生熬夜情况调查大学生熬夜情况调查',
-    remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
+    survey_title: '大学生熬夜情况调查',
+    remark: '专门为调查大学生熬夜情况而设计的问卷，欢迎大家使用！',
     num: 100,
     created_user_id: '李四',
     ansNum: 100,
@@ -71,7 +71,7 @@ const prePaper = (id) => {
       </n-input-group>
     </n-space>
 
-    <n-grid x-gap="50" y-gap="40" :cols="9">
+    <n-grid x-gap="80" y-gap="40" :cols="9">
       <n-grid-item v-for="item in qsInfo.list.model" :key="item.survey_id" :span="3" class="card">
         <div class="title">
           <a class="tt" @click="prePaper(item.survey_id)">{{ item.survey_title }}</a>
@@ -87,7 +87,6 @@ const prePaper = (id) => {
         </div>
         <div class="foot">
           <span>共{{ item.num }}题</span>
-          <span>来自用户：{{ item.created_user_id }}</span>
         </div>
       </n-grid-item>
     </n-grid>
@@ -103,8 +102,8 @@ a {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-  height: 200px;
-  padding: 10px;
+  height: 220px;
+  padding: 10px 26px;
   // 最下面的元素要位于底部
   // display: flex;
   // flex-direction: column;

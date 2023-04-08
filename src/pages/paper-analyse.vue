@@ -5,6 +5,19 @@ import TableOnly from '../components/analyse/tableOnly.vue'
 import TableChart from '../components/analyse/tableChart.vue'
 import { constVal } from '../util/constVal'
 
+// 帮我分析下面的问卷，一百字左右的简要分析。
+// 标题: '大学生熬夜情况调查',
+//     [{单选题: : '您通常每周熬夜几次？',提交人数: 25,
+//         答案: [{ 选项: '1-2',选择人数: 7,},
+//           {选项: '3-5',选择人数: 16, },
+//           { 选项: '6-7',选择人数: 2,},],},
+//       {多选题: '您熬夜后的身体状况如何？',submit_person: 25,
+//       答案: [{选项: '疲劳',选择人数: 16,},
+//           { 选项: '头痛',选择人数: 10,},
+//           {选项: '精神状态不佳',选择人数: 22,},], },
+//       {填空题: '还会继续熬夜吗？',
+//         答案: [{option: '会',},{option: '不会',},{option: '不会',},{option: '不会',},{option: '不会',},{option: '会',},{option: '可能会',},{option: '会',},{option: '应该不会',},{option: '可能会',},{option: '应该会',},{option: '可能不会',},{option: '不会',},{option: '可能不会',},{option: '会',},{option: '可能不会',},{option: '不会',},{option: '可能不会',},{option: '会',},{option: '可能会',},{option: '可能不会',},{option: '会',},{option: '会',},{option: '不知道',},{option: '可能会',}],},]
+
 const router = useRouter()
 const paper = reactive({
   list: {
@@ -16,91 +29,151 @@ const paper = reactive({
         qs_id: '',
         qs_order: 1,
         qs_number: 1,
-        qs_title: '一周熬夜次数:',
+        qs_title: '您通常每周熬夜几次？',
         qs_type: '11',
         qs_option: [
           '1-2',
           '3-5',
           '6-7',
         ],
-        submit_person: 5,
+        submit_person: 25,
         answers: [
           {
             option: '1-2',
-            subtotal: 3,
-            percentage: 60,
+            subtotal: 7,
+            percentage: 28,
           },
           {
             option: '3-5',
-            subtotal: 1,
-            percentage: 20,
+            subtotal: 16,
+            percentage: 64,
           },
           {
             option: '6-7',
-            subtotal: 1,
-            percentage: 20,
+            subtotal: 2,
+            percentage: 8,
           },
         ],
       },
       {
         qs_order: 2,
         qs_number: 2,
-        qs_title: '熬夜的原因？',
+        qs_title: '您熬夜后的身体状况如何？',
         qs_type: '12',
         qs_option: [
-          '开心',
-          '习惯',
-          '有事',
+          '疲劳',
+          '头痛',
+          '精神状态不佳',
         ],
-        submit_person: 5,
+        submit_person: 25,
         answers: [
           {
-            option: '开心',
-            subtotal: 3,
-            percentage: 60,
+            option: '疲劳',
+            subtotal: 16,
+            percentage: 33,
           },
           {
-            option: '习惯',
-            subtotal: 3,
-            percentage: 60,
+            option: '头痛',
+            subtotal: 10,
+            percentage: 21,
           },
           {
-            option: '有事',
-            subtotal: 3,
-            percentage: 60,
+            option: '精神状态不佳',
+            subtotal: 22,
+            percentage: 46,
           },
         ],
       },
       {
         qs_order: 3,
         qs_number: 3,
-        qs_title: '还要继续熬夜吗？',
+        qs_title: '还会继续熬夜吗？',
         qs_type: '21',
         qs_option: [
           {
-            option: '要的哇',
+            option: '会',
           },
           {
-            option: '不了不了',
+            option: '不会',
           },
           {
-            option: '撒发生',
+            option: '会',
           },
           {
-            option: '啊风格',
+            option: '可能会',
           },
           {
-            option: '阿飞去',
+            option: '会',
+          },
+          {
+            option: '会',
+          },
+          {
+            option: '不会',
+          },
+          {
+            option: '会',
+          },
+          {
+            option: '会',
+          },
+          {
+            option: '会',
+          },
+          {
+            option: '可能会',
+          },
+          {
+            option: '不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '应该会吧',
+          },
+          {
+            option: '可能不会',
+          },
+          {
+            option: '会吧',
           },
         ],
-        submit_person: 5,
+        submit_person: 25,
       },
     ],
-    ansPapers: 5,
+    ansPapers: 25,
   },
 })
 const state = reactive({
-  chatGpt: '你的熬夜情况如何？这是一个测试问卷，希望你能认真填写，谢谢！这是一份问卷分析报告，希望你能认真阅读，谢谢！你的熬夜情况如何？这是一个测试问卷，希望你能认真填写，谢谢！这是一份问卷分析报告，希望你能认真阅读，谢谢！你的熬夜情况如何？这是一个测试问卷，希望你能认真填写，谢谢！这是一份问卷分析报告，希望你能认真阅读，谢谢！你的熬夜情况如何？这是一个测试问卷，希望你能认真填写，谢谢！这是一份问卷分析报告，希望你能认真阅读，谢谢！',
+  chatGpt: '大学生每周熬夜的次数差异较大，最多的选项是“3-5 次”，最少的选项是“6-7 次”。因此，熬夜情况在不同程度上影响了大学生的身体健康。大学生熬夜后最常见的身体状况是疲劳，其次是头痛，精神状态不佳的选项最少。这表明大学生在熬夜后，身体容易出现疲劳、头痛等症状，这可能与他们的生活习惯有关。大学生对于熬夜的态度不尽相同。其中，选择“会”的人数最多。这表明大学生对于熬夜的态度存在一定的分歧，但熬夜行为仍然存在。综上所述，大学生熬夜情况比较严重，熬夜后身体容易出现疲劳、头痛等症状，但他们对于熬夜的态度仍然存在分歧。因此，需要采取措施来引导大学生合理作息，提高生活质量。',
 })
 const ansList = []
 for (const item of paper.list.content) {

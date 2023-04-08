@@ -1,10 +1,12 @@
 <script setup>
-import { computed, defineComponent, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 // import { FormItemRule, useMessage } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { nanoid } from 'nanoid/async'
 import { constVal } from '../util/constVal'
+import { paperInfo } from '../api/paper-info'
+import { chatGpt } from '../api/chat-gpt'
 
 const message = useMessage()
 const router = useRouter()
@@ -14,298 +16,205 @@ const paperId = route.query.id
 
 // 各种状态
 const state = reactive({
+  waitting: false,
   updataTitle: false,
   updataRemark: false,
   isNewQs: false,
   gpt: Array.from({ length: 10 }, () => false),
-  isNewPaper: false,
+  isNewPaper: true,
+  search: '',
+  qsInfo: {
+    survey_id: -1,
+    survey_title: '请输入标题',
+    remark: '',
+    state: 0,
+    count_question: 0,
+    questionList: [],
+  },
 })
 
+// gpt相关
+const saveDialog = ref([
+  {
+    title: '您的恋爱对象是否是大学同学？',
+    optionList: [
+      {
+        text: '是',
+      },
+      {
+        text: '否',
+      },
+    ],
+  }, {
+    title: '您认为大学生恋爱的最大困难是什么？',
+    optionList: [
+      {
+        text: '时间和学业压力',
+      },
+      {
+        text: '经济压力',
+      },
+      {
+        text: '家庭的反对或不支持',
+      },
+      {
+        text: '空间和住宿问题',
+      },
+      {
+        text: '社交压力和舆论压力',
+      },
+    ],
+  }])
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
-  const res = await getPaperInfoById(paperId);
-  if (res.code === 200) {
-    paperInfo = res.data;
+  const res = await paperInfo.getPaperInfoById(paperId)
+  if (res.data) {
+    state.isNewPaper = false
+    state.qsInfo = res.data
   }
 }
 
-const qsInfo = reactive({
-  list: [],
-})
+const searchKeyword = async (keyword) => {
+  state.waitting = true
+  // const res = await chatGpt.postChatGptQs(keyword)
+  // 定时器模拟请求
+  const res = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: {
+          questionList: [
+            {
+              title: '您的恋爱对象是大学同学？',
+              optionList: [
+                {
+                  text: '是',
+                },
+                {
+                  text: '这怎么不许呢',
+                },
+              ],
+            }, {
+              title: '您认为大学生恋爱的最大困难是什么？',
+              optionList: [
+                {
+                  text: '时间和学业压力',
+                },
+                {
+                  text: '经济压力',
+                },
+                {
+                  text: '家庭的反对或不支持',
+                },
+                {
+                  text: '空间和住宿问题',
+                },
+                {
+                  text: '社交压力和舆论压力',
+                },
+              ],
+            }],
+        },
+      })
+    }, 10000)
+  })
+  if (res.data) {
+    saveDialog.value = res.data.questionList
+    state.waitting = false
+  }
+}
+
+getPaperInfo()
 const compRefList = ref([])
-if (paperId) {
-  qsInfo.list = {
-    model: [{
-      survey_id: 1,
-      survey_title: '大学生熬夜情况调查',
-      remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-      num: 100,
-      created_user_id: '李四',
-      ansNum: 100,
-      created_time: '2023-04-01 12:00:00',
-      state: 2,
-      // 以下是题目列表
-      questions: [{
-        question_id: 1,
-        question_order: 1,
-        question: '你的性别是？',
-        type: 1,
-        value: null,
-        options: [{
-          option_id: 1,
-          content: '男',
-        },
-        {
-          option_id: 2,
-          content: '女',
-        }],
-      },
-      {
-        question_id: 2,
-        question_order: 6,
-        question: '你的年级是？',
-        type: 3,
-        content: null,
-      },
-      {
-        question_id: 5,
-        question_order: 7,
-        question: '你的优点是？',
-        type: 4,
-        content: null,
-      },
-      {
-        question_id: 3,
-        question_order: 3,
-        question: '您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？您晚上休息的时间是在几点的时候？',
-        type: 1,
-        value: null,
-        options: [{
-          option_id: 1,
-          content: '10：00之前',
-        },
-        {
-          option_id: 2,
-          content: '10：00---11：00',
-        },
-        {
-          option_id: 3,
-          content: '11：00---12：00',
-        },
-        {
-          option_id: 4,
-          content: '12：00之后',
-        }],
-      },
-      {
-        question_id: 4,
-        question_order: 2,
-        question: '熬夜的原因？',
-        type: 2,
-        value: null,
-        options: [{
-          option_id: 1,
-          content: '学习',
-        },
-        {
-          option_id: 2,
-          content: '工作',
-        },
-        {
-          option_id: 3,
-          content: '娱乐',
-        },
-        {
-          option_id: 4,
-          content: '其他',
-        }],
-      }],
-    }],
-  }
-}
-else {
-  qsInfo.list = {
-    model: [{
-      survey_id: 1,
-      survey_title: '请输入问卷标题',
-      remark: '',
-      num: 0,
-      created_user_id: '李四',
-      ansNum: 0,
-      created_time: '2023-04-06 12:00:00',
-      state: 2,
-      questions: [],
-      // 以下是题目列表
-      // questions: [{
-      //   question_id: 1,
-      //   question_order: 1,
-      //   question: '',
-      //   type: 1,
-      //   value: null,
-      //   options: [{
-      //     option_id: 1,
-      //     content: '',
-      //   },
-      //   {
-      //     option_id: 2,
-      //     content: '',
-      //   }],
-      // }],
-    }],
-  }
-  state.isNewPaper = true
-}
 
 // 修改问卷标题和描述相关
 const value = reactive({
-  title: qsInfo.list.model[0].survey_title,
-  remark: qsInfo.list.model[0].remark,
+  title: state.qsInfo.survey_title,
+  remark: state.qsInfo.remark,
 })
 const cancelTitleUpdata = () => {
   message.info('取消修改')
-  value.title = qsInfo.list.model[0].survey_title
+  value.title = state.qsInfo.survey_title
 }
 const submitTitleUpdata = () => {
   if (value.title === '') {
     message.error('问卷标题不能为空，修改失败')
-    value.title = qsInfo.list.model[0].survey_title
+    value.title = state.qsInfo.survey_title
     return
   }
-  qsInfo.list.model[0].survey_title = value.title
+  state.qsInfo.survey_title = value.title
   message.success('问卷标题修改成功')
 }
 const cancelRemarkUpdata = () => {
   message.info('取消修改')
-  value.remark = qsInfo.list.model[0].remark
+  value.remark = state.qsInfo.remark
 }
 const submitRemarkUpdata = () => {
-  qsInfo.list.model[0].remark = value.remark
+  state.qsInfo.remark = value.remark
   message.success('问卷描述修改成功')
 }
 
 // 将题目排序
 const sortedQuestions = computed(() => {
-  return qsInfo.list.model.map((item) => {
-    item.questions.sort((a, b) => {
-      return a.question_order - b.question_order
-    })
-    return item
+  return state.qsInfo.questionList.slice().sort((item) => {
+    return item.question_order - item.question_order
   })
 })
 // 计算题目总数
 const qsNum = computed(() => {
-  let num = 0
-  sortedQuestions.value[0].questions.forEach((item) => {
-    num += 1
-  })
-  return num
+  return state.qsInfo.questionList.length
 })
 // 删除题目
 const deleteQs = (id) => {
-  const qsIndex = qsInfo.list.model[0].questions.findIndex((item) => {
+  // 如果问卷中只有一道题，不允许删除
+  if (state.qsInfo.questionList.length === 1) {
+    message.error('问卷中至少要有一道题目')
+    return
+  }
+  const qsIndex = state.qsInfo.questionList.findIndex((item) => {
     return item.question_id === id
   })
-  qsInfo.list.model[0].questions.splice(qsIndex, 1)
+  state.qsInfo.questionList.splice(qsIndex, 1)
 }
 // 上移题目
 const moveUpQs = (index) => {
-  const temp = qsInfo.list.model[0].questions[index].question_order
-  qsInfo.list.model[0].questions[index].question_order = qsInfo.list.model[0].questions[index - 1].question_order
-  qsInfo.list.model[0].questions[index - 1].question_order = temp
-  const tempQs = qsInfo.list.model[0].questions[index]
-  qsInfo.list.model[0].questions[index] = qsInfo.list.model[0].questions[index - 1]
-  qsInfo.list.model[0].questions[index - 1] = tempQs
+  const temp = state.qsInfo.questionList[index].question_order
+  const tempQs = state.qsInfo.questionList[index]
+  state.qsInfo.questionList[index].question_order = state.qsInfo.questionList[index - 1].question_order
+  state.qsInfo.questionList[index - 1].question_order = temp
+  state.qsInfo.questionList[index] = state.qsInfo.questionList[index - 1]
+  state.qsInfo.questionList[index - 1] = tempQs
 }
 // 下移题目
 const moveDownQs = (index) => {
-  const temp = qsInfo.list.model[0].questions[index].question_order
-  qsInfo.list.model[0].questions[index].question_order = qsInfo.list.model[0].questions[index + 1].question_order
-  qsInfo.list.model[0].questions[index + 1].question_order = temp
-  const tempQs = qsInfo.list.model[0].questions[index]
-  qsInfo.list.model[0].questions[index] = qsInfo.list.model[0].questions[index + 1]
-  qsInfo.list.model[0].questions[index + 1] = tempQs
+  const temp = state.qsInfo.questionList[index].question_order
+  state.qsInfo.questionList[index].question_order = state.qsInfo.questionList[index + 1].question_order
+  state.qsInfo.questionList[index + 1].question_order = temp
+  const tempQs = state.qsInfo.questionList[index]
+  state.qsInfo.questionList[index] = state.qsInfo.questionList[index + 1]
+  state.qsInfo.questionList[index + 1] = tempQs
 }
 
-// gpt相关
-const saveDialog = ref(
-  [
-    {
-      title: '你是否熬夜？',
-      options: [
-        {
-          text: '是',
-        },
-        {
-          text: '否',
-        },
-      ],
-    }, {
-      title: '几点睡觉？',
-      options: [
-        {
-          text: '12点',
-        },
-        {
-          text: '1点',
-        },
-        {
-          text: '2点',
-        },
-        {
-          text: '3点',
-        },
-      ],
-    }, {
-      title: '你几点睡觉？',
-      options: [
-        {
-          text: '12点',
-        },
-        {
-          text: '1点',
-        },
-        {
-          text: '2点',
-        },
-        {
-          text: '3点',
-        },
-      ],
-    }, {
-      title: '我几点睡觉？',
-      options: [
-        {
-          text: '12点',
-        },
-        {
-          text: '1点',
-        },
-        {
-          text: '2点',
-        },
-        {
-          text: '3点',
-        },
-      ],
-    }, {
-      title: '他几点睡觉？',
-      options: [
-        {
-          text: '12点',
-        },
-        {
-          text: '1点',
-        },
-        {
-          text: '2点',
-        },
-        {
-          text: '3点',
-        },
-      ],
-    }],
-)
-
+// 将saveDialog数组里的options里添加option_id并且将text转化为content
+// const saveDialogWithId = computed(() => {
+//   const temp = []
+//   saveDialog.value.forEach((item, index) => {
+//     const tempItem = {
+//       question_id: index + 1,
+//       question: item.title,
+//       type: 1,
+//       value: null,
+//       optionList: [],
+//     }
+//     item.optionList.forEach((option, optionIndex) => {
+//       tempItem.optionList.push({
+//         option_id: optionIndex + 1,
+//         content: option.text,
+//       })
+//     })
+//     temp.push(tempItem)
+//   })
+//   return temp
+// })
 // 将1、2、3转化为A、B、C
 const convertNumToLetter = (num) => {
   const letter = String.fromCharCode(64 + num)
@@ -316,35 +225,18 @@ const gptShow = (index) => {
 }
 // 添加题目
 let order = 1
-const addBinaryQuestion = async () => {
-  // qsInfo.list.model[0].questions.push({
-  //   question_id: await nanoid(),
-  //   question: '',
-  //   type: 1,
-  //   value: null,
-  //   options: [{
-  //     option_id: 1,
-  //     content: '',
-  //   },
-  //   {
-  //     option_id: 2,
-  //     content: '',
-  //   }],
-  // })
-  // state.isNewQs = true
-}
 const addRadioQuestion = async () => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  qsInfo.list.model[0].questions.push({
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: '',
     type: 1,
     value: null,
-    options: [{
+    optionList: [{
       option_id: 1,
       content: '',
     }, {
@@ -355,17 +247,17 @@ const addRadioQuestion = async () => {
   state.isNewQs = true
 }
 const addCheckboxQuestion = async () => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  qsInfo.list.model[0].questions.push({
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: '',
     type: 2,
     value: null,
-    options: [{
+    optionList: [{
       option_id: 1,
       content: '',
     }, {
@@ -376,11 +268,11 @@ const addCheckboxQuestion = async () => {
   state.isNewQs = true
 }
 const addShortAnswerQuestion = async () => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  qsInfo.list.model[0].questions.push({
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: '',
@@ -390,11 +282,11 @@ const addShortAnswerQuestion = async () => {
   state.isNewQs = true
 }
 const addLongAnswerQuestion = async () => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  qsInfo.list.model[0].questions.push({
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: '',
@@ -404,39 +296,39 @@ const addLongAnswerQuestion = async () => {
   state.isNewQs = true
 }
 const gptAddRadioQuestion = async (index) => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
-    saveDialog.value[index].options[i].option_id = i + 1
-    saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  for (let i = 0; i < saveDialog.value[index].optionList.length; i += 1) {
+    saveDialog.value[index].optionList[i].option_id = i + 1
+    saveDialog.value[index].optionList[i].content = saveDialog.value[index].optionList[i].text
   }
-  qsInfo.list.model[0].questions.push({
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: saveDialog.value[index].title,
     type: 1,
     value: null,
-    options: saveDialog.value[index].options,
+    optionList: saveDialog.value[index].optionList,
   })
 }
 const gptAddCheckboxQuestion = async (index) => {
-  if (qsInfo.list.model[0].questions.length === 0)
+  if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = qsInfo.list.model[0].questions[qsInfo.list.model[0].questions.length - 1].question_order + 1
-  for (let i = 0; i < saveDialog.value[index].options.length; i += 1) {
-    saveDialog.value[index].options[i].option_id = i + 1
-    saveDialog.value[index].options[i].content = saveDialog.value[index].options[i].text
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+  for (let i = 0; i < saveDialog.value[index].optionList.length; i += 1) {
+    saveDialog.value[index].optionList[i].option_id = i + 1
+    saveDialog.value[index].optionList[i].content = saveDialog.value[index].optionList[i].text
   }
-  qsInfo.list.model[0].questions.push({
+  state.qsInfo.questionList.push({
     question_id: await nanoid(),
     question_order: order,
     question: saveDialog.value[index].title,
     type: 2,
     value: null,
-    options: saveDialog.value[index].options,
+    optionList: saveDialog.value[index].optionList,
   })
 }
 
@@ -447,16 +339,16 @@ const submitEdit = () => {
       return
     }
   }
-  router.go(-1)
+  // 转换成json格式
+  const qsInfo = JSON.stringify(state.qsInfo)
+  console.log(qsInfo)
+  // router.go(-1)
 }
 
 // 返回上一级
 const goBack = () => {
   router.go(-1)
 }
-// onMounted(() => {
-//   console.log(compRefList.value[0].state.isEdit)
-// })
 </script>
 
 <template>
@@ -482,9 +374,6 @@ const goBack = () => {
           <n-collapse-item title="题目类型" name="1">
             <n-collapse :default-expanded-names="['1', '2']" style="width: 100%;margin: 0;">
               <n-collapse-item title="选择题" name="1">
-                <n-button style="width: 80%;" quaternary round @click="addBinaryQuestion">
-                  判断题
-                </n-button>
                 <n-button style="width: 80%;" quaternary round @click="addRadioQuestion">
                   单选题
                 </n-button>
@@ -504,11 +393,10 @@ const goBack = () => {
           </n-collapse-item>
           <n-collapse-item title="问卷大纲" name="2">
             <div
-              v-for="(question, index) of sortedQuestions[0].questions" :key="question.question_id"
-              :question="question.question_id" :index="index" style="margin-top: 3px;"
+              v-for="(question, index) of sortedQuestions" :key="question.question_id" :question="question.question_id"
+              :index="index" style="margin-top: 3px;"
             >
               {{ index + 1 }}、{{ question.question }}
-              <!-- {{ sortedQuestions[0].questions }} -->
             </div>
           </n-collapse-item>
         </n-collapse>
@@ -516,10 +404,10 @@ const goBack = () => {
     </n-grid-item>
     <n-grid-item :span="11">
       <n-layout-content>
-        <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="contain">
+        <div class="contain">
           <div class="head">
             <div class="title" @click="state.updataTitle = true">
-              {{ item.survey_title }}
+              {{ state.qsInfo.survey_title }}
             </div>
             <n-modal
               v-model:show="state.updataTitle" :trap-focus="false" :mask-closable="false" preset="dialog"
@@ -529,7 +417,7 @@ const goBack = () => {
               <n-input v-model:value="value.title" placeholder="请输入题目" clearable />
             </n-modal>
             <div class="des" @click="state.updataRemark = true">
-              <b style="font-size: 17px;">问卷描述：</b>{{ item.remark }}
+              <b style="font-size: 17px;">问卷描述：</b>{{ state.qsInfo.remark }}
             </div>
             <n-modal
               v-model:show="state.updataRemark" :trap-focus="false" :mask-closable="false" preset="dialog"
@@ -542,12 +430,13 @@ const goBack = () => {
           <div class="body">
             <n-form ref="formRef">
               <n-form-item-gi
-                v-for="(question, index) of sortedQuestions[0].questions" :key="question.question_id"
+                v-for="(question, index) of sortedQuestions" :key="question.question_id"
                 :question="question.question_id" :index="index"
               >
                 <component
-                  :is="constVal.qsTypeMap.get(question.type).comp" :ref="el => compRefList[index] = el"
-                  :qs-index="index + 1" :qs-title="question.question" :qs-options="question.options"
+                  :is="constVal.qsTypeMap.get(question.type).comp"
+                  :ref="el => compRefList[index] = el"
+                  :qs-index="index + 1" :qs-title="question.question" :qs-options="question.optionList"
                   :qs-value="question.value" :qs-id="question.question_id" :qs-length="qsNum" :is-new-qs="state.isNewQs"
                   @delete-qs="deleteQs(question.question_id)" @move-up-qs="moveUpQs(index)"
                   @move-down-qs="moveDownQs(index)"
@@ -561,23 +450,27 @@ const goBack = () => {
     <n-grid-item :span="8">
       <div class="chat">
         <div class="gpt">
-          <div v-show="saveDialog !== undefined">
+          <div v-show="state.waitting" class="wait">
+            <n-spin size="large" />&nbsp;&nbsp;
+            正在为您生成题目，请稍等...
+          </div>
+          <div v-show="saveDialog !== undefined && !state.waitting">
             这是我为您提供的题目：
           </div>
-          <div v-show="saveDialog === undefined" class="title">
+          <div v-show="saveDialog === undefined && !state.waitting" class="title">
             <div>目前还没有您的提问！</div>
             <div>快发送问卷标题或者问题关键词给我吧！</div>
             <div>我会随机给您生成问题，供您选择！</div>
           </div>
-          <div v-for="(item, index) of saveDialog" :key="item.title" :item="item.title" :index="index" class="item">
+          <div v-for="(item, index) of saveDialog" v-show="saveDialog !== undefined && !state.waitting" :key="item.title" :item="item.title" :index="index" class="item">
             <n-grid :x-gap="6" :cols="6" @mouseenter="gptShow(index)" @mouseleave="state.gpt[index] = false">
-              <n-grid-item :span="3">
+              <n-grid-item :span="4">
                 {{ index + 1 }}、{{ item.title }}
-                <div v-for="(option, x) of item.options" :key="option.text" :option="option.text" :index="x">
+                <div v-for="(option, x) of item.optionList" :key="option.text" :option="option.text" :index="x">
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ convertNumToLetter(x + 1) }}、{{ option.text }}
                 </div>
               </n-grid-item>
-              <n-grid-item :span="3" class="handle">
+              <n-grid-item :span="2" class="handle">
                 <div v-show="state.gpt[index]">
                   <n-button strong secondary round type="success" @click="gptAddRadioQuestion(index)">
                     添加为单选题
@@ -595,8 +488,8 @@ const goBack = () => {
         <div class="user">
           <n-input-group>
             <span style="line-height: 35px; margin-right: 8px;">关键词</span>
-            <n-input :style="{ width: '50%' }" placeholder="请输入关键词" />
-            <n-button type="primary" ghost>
+            <n-input v-model:value="state.search" :style="{ width: '50%' }" placeholder="请输入关键词" :allow-input="noSideSpace" />
+            <n-button type="primary" ghost @click="searchKeyword(state.search)">
               搜索
             </n-button>
           </n-input-group>
@@ -621,26 +514,38 @@ const goBack = () => {
   border-radius: 10px;
   padding: 10px 10px;
   overflow: auto;
+
   .gpt {
-    height: 54vh;
+    height: 43vh;
     overflow: auto;
     border: 1px solid #ccc;
     background: #fdfdfd;
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;
+    padding-top: 30px;
+    .wait {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
     .title {
       text-align: center;
       margin: 60px 0;
       font-size: 20px;
+
       div {
         margin: 15px 0;
       }
     }
+
     .item {
       padding: 0 20px;
       margin-top: 10px;
       min-height: 80px;
+
       .handle {
         display: flex;
         flex-direction: column;
@@ -653,18 +558,21 @@ const goBack = () => {
       }
     }
   }
+
   .user {
     padding: 10px;
     margin: 0 0 10px 40px;
   }
+
   .tip {
     background: #f5f5f5;
     border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 20px 10px;
+    margin-bottom: 20px;
     border: 1px solid #ccc;
   }
 }
+
 .n-layout-header {
   background: #1e649f;
   height: 60px;

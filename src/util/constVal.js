@@ -1,4 +1,3 @@
-import BinaryQuestion from '../components/BinaryQuestion.vue'
 import RadioQuestion from '../components/RadioQuestion.vue'
 import CheckboxQuestion from '../components/CheckboxQuestion.vue'
 import ShortAnswerQuestion from '../components/ShortAnswerQuestion.vue'
@@ -14,7 +13,6 @@ const IS_STOP = { desc: '已结束', value: 2 }
 // 0为判断 1为单选 2为多选 3为单行填空 4为多行填空
 // 问卷类型
 const qsTypeMap = new Map()
-qsTypeMap.set(0, { desc: '判断题', value: 0, comp: BinaryQuestion })
 qsTypeMap.set(1, { desc: '单选题', value: 1, comp: RadioQuestion })
 qsTypeMap.set(2, { desc: '多选题', value: 2, comp: CheckboxQuestion })
 qsTypeMap.set(3, { desc: '单行填空', value: 3, comp: ShortAnswerQuestion })
