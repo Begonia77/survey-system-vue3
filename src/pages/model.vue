@@ -1,53 +1,16 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getPapersList } from '../api/all-paper'
+const router = useRouter()
 const qsInfo = reactive({
   list: [],
 })
-qsInfo.list = {
-  model: [{
-    survey_id: 1,
-    survey_title: '大学生熬夜情况调查',
-    remark: '专门为调查大学生熬夜情况而设计的问卷，欢迎大家使用！',
-    num: 100,
-    created_user_id: '李四',
-    ansNum: 100,
-    created_time: '2023-05-01 12:00:00',
-    state: 2,
-  },
-  {
-    survey_id: 2,
-    survey_title: '学生疫情防控每日报表',
-    remark: '学生疫情防控每日报表',
-    num: 48,
-    created_user_id: '张三',
-    ansNum: 100,
-    created_time: '2021-05-04 12:00:00',
-    state: 0,
-  },
-  {
-    survey_id: 3,
-    survey_title: '大学生恋爱情况调查',
-    remark: '大学生恋爱情况调查大学生恋爱情况调查',
-    num: 59,
-    created_user_id: '六六',
-    ansNum: 1009,
-    created_time: '2022-05-01 12:00:00',
-    state: 1,
-  },
-  {
-    survey_id: 4,
-    survey_title: '大学生恋爱情况调查',
-    remark: '大学生恋爱情况调查大学生恋爱情况调查',
-    num: 30,
-    created_user_id: '王五',
-    ansNum: 10,
-    created_time: '2021-03-01 12:00:00',
-    state: 2,
-  }],
-}
 
-const router = useRouter()
+const getAllModelList = async () => {
+  const res = await getPapersList()
+  qsInfo.list = res.data.data.filter((item) => item.state === 4)
+}
 
 const prePaper = (id) => {
   router.push({
@@ -57,11 +20,13 @@ const prePaper = (id) => {
     },
   })
 }
+onMounted(() => {
+  getAllModelList()
+})
 </script>
 
 <template>
   <div style="padding: 20px 75px;">
-    <n-space vertical>
       <n-input-group style="padding-bottom: 30px;">
         <span style="margin-right: 10px;">标题</span>
         <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
@@ -69,24 +34,20 @@ const prePaper = (id) => {
           搜索
         </n-button>
       </n-input-group>
-    </n-space>
 
     <n-grid x-gap="80" y-gap="40" :cols="9">
-      <n-grid-item v-for="item in qsInfo.list.model" :key="item.survey_id" :span="3" class="card">
+      <n-grid-item v-for="item in qsInfo.list" :key="item.surveyId" :span="3" class="card">
         <div class="title">
-          <a class="tt" @click="prePaper(item.survey_id)">{{ item.survey_title }}</a>
+          <a class="tt" @click="prePaper(item.surveyId)">{{ item.surveyTitle }}</a>
           <n-button style="float: right; --n-height:28px;" strong secondary round type="info">
             创建
           </n-button>
         </div>
-        <!-- <n-ellipsis :line-clamp="4" class="des">
-            {{ item.remark }}
-          </n-ellipsis> -->
         <div class="des">
-          {{ item.remark }}
+          {{ item.remark?item.remark:'未填写描述' }}
         </div>
         <div class="foot">
-          <span>共{{ item.num }}题</span>
+          <span>共 {{ item.count_question }} 题</span>
         </div>
       </n-grid-item>
     </n-grid>
@@ -104,10 +65,6 @@ a {
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   height: 220px;
   padding: 10px 26px;
-  // 最下面的元素要位于底部
-  // display: flex;
-  // flex-direction: column;
-  // justify-content: space-between;
 
   .title {
     font-size: 17px;

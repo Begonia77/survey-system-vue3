@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInst } from 'naive-ui'
 import { FormItemRule, useMessage } from 'naive-ui'
+import { paperInfo } from 'src/api/paper-info'
 
 const route = useRoute()
 const paperId = route.query.id
@@ -15,107 +16,121 @@ const paperId = route.query.id
 //   }
 // }
 
-const qsInfo = reactive<any>({
-  list: [] as any[],
+const state = reactive({
+  paperInfo: {},
 })
 
-qsInfo.list = {
-  model: [{
-    survey_id: 1,
-    survey_title: '大学生熬夜情况调查',
-    remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-    num: 100,
-    created_user_id: '李四',
-    ansNum: 100,
-    created_time: '2023-05-01 12:00:00',
-    state: 2,
-    // 以下是题目列表
-    questions: [{
-      question_id: 1,
-      question_order: 1,
-      question: '你的性别是？',
-      type: 1,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '男',
-      },
-      {
-        option_id: 2,
-        content: '女',
-      }],
-    },
-    {
-      question_id: 2,
-      question_order: 6,
-      question: '你的年级是？',
-      type: 3,
-      content: null,
-    },
-    {
-      question_id: 3,
-      question_order: 3,
-      question: '您晚上休息的时间是在：',
-      type: 1,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '10：00之前',
-      },
-      {
-        option_id: 2,
-        content: '10：00---11：00',
-      },
-      {
-        option_id: 3,
-        content: '11：00---12：00',
-      },
-      {
-        option_id: 4,
-        content: '12：00之后',
-      }],
-    },
-    {
-      question_id: 4,
-      question_order: 2,
-      question: '熬夜的原因？',
-      type: 2,
-      value: null,
-      options: [{
-        option_id: 1,
-        content: '学习',
-      },
-      {
-        option_id: 2,
-        content: '工作',
-      },
-      {
-        option_id: 3,
-        content: '娱乐',
-      },
-      {
-        option_id: 4,
-        content: '其他',
-      }],
-    }],
-  }],
+// state.paperInfo = {
+//   model: [{
+//     surveyId: 1,
+//     survey_title: '大学生熬夜情况调查',
+//     remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
+//     num: 100,
+//     created_user_id: '李四',
+//     ansNum: 100,
+//     created_time: '2023-05-01 12:00:00',
+//     state: 2,
+//     // 以下是题目列表
+//     questions: [{
+//       question_id: 1,
+//       question_order: 1,
+//       question: '你的性别是？',
+//       type: 1,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '男',
+//       },
+//       {
+//         optionId: 2,
+//         content: '女',
+//       }],
+//     },
+//     {
+//       question_id: 2,
+//       question_order: 6,
+//       question: '你的年级是？',
+//       type: 3,
+//       content: null,
+//     },
+//     {
+//       question_id: 3,
+//       question_order: 3,
+//       question: '您晚上休息的时间是在：',
+//       type: 1,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '10：00之前',
+//       },
+//       {
+//         optionId: 2,
+//         content: '10：00---11：00',
+//       },
+//       {
+//         optionId: 3,
+//         content: '11：00---12：00',
+//       },
+//       {
+//         optionId: 4,
+//         content: '12：00之后',
+//       }],
+//     },
+//     {
+//       question_id: 4,
+//       question_order: 2,
+//       question: '熬夜的原因？',
+//       type: 2,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '学习',
+//       },
+//       {
+//         optionId: 2,
+//         content: '工作',
+//       },
+//       {
+//         optionId: 3,
+//         content: '娱乐',
+//       },
+//       {
+//         optionId: 4,
+//         content: '其他',
+//       }],
+//     }],
+//   }],
+// }
+
+// 写一个计算属性，将state.paperInfo里面的四个questions对象根据question_order进行排序，并返回
+
+const getPaperInfo = async () => {
+  const res = await paperInfo.getPaperInfoById(paperId)
+  state.paperInfo = res.data.data
+  console.log(res.data.data)
 }
-
-// 写一个计算属性，将qsInfo.list.model里面的四个questions对象根据question_order进行排序，并返回
-const sortedQuestions = computed(() => {
-  return qsInfo.list.model.map((item: any) => {
-    item.questions.sort((a: any, b: any) => {
-      return a.question_order - b.question_order
-    })
-    return item
-  })
-})
+// const sortedQuestions = computed(() => {
+//   return state.paperInfo.questionList.slice().sort((item) => {
+//     return item.questionOrder - item.questionOrder
+//   })
+// })
+// const sortedQuestions = computed(() => {
+//   return state.paperInfo.map((item: any) => {
+//     item.questions.sort((a: any, b: any) => {
+//       return a.question_order - b.question_order
+//     })
+//     return item
+//   })
+// })
 const formRef = ref<FormInst | null>(null)
 const router = useRouter()
 // 返回上一级的方法
 const goBack = () => {
   router.go(-1)
 }
+onMounted(() => {
+  getPaperInfo()
+})
 </script>
 
 <template>
@@ -131,14 +146,14 @@ const goBack = () => {
           </n-grid-item>
         </n-grid>
       </n-layout-header>
-      <n-layout-content>
-        <div v-for="item in qsInfo.list.model" :key="item.survey_id" class="contain">
+      <!-- <n-layout-content>
+        <div class="contain">
           <div class="head">
             <div class="title">
-              {{ item.survey_title }}
+              {{ state.paperInfo.survey_title }}
             </div>
             <div class="des">
-              {{ item.remark }}
+              {{ state.paperInfo.remark }}
             </div>
           </div>
           <div class="body">
@@ -154,8 +169,8 @@ const goBack = () => {
                   <n-radio-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
                       <n-radio
-                        v-for="option in question.options" :key="option.option_id" class="option"
-                        :value="option.option_id"
+                        v-for="option in question.options" :key="option.optionId" class="option"
+                        :value="option.optionId"
                       >
                         {{ option.content }}
                       </n-radio>
@@ -169,8 +184,8 @@ const goBack = () => {
                   <n-checkbox-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
                       <n-checkbox
-                        v-for="option in question.options" :key="option.option_id" class="option"
-                        :value="option.option_id"
+                        v-for="option in question.options" :key="option.optionId" class="option"
+                        :value="option.optionId"
                       >
                         {{ option.content }}
                       </n-checkbox>
@@ -187,7 +202,7 @@ const goBack = () => {
             </n-form>
           </div>
         </div>
-      </n-layout-content>
+      </n-layout-content> -->
     </n-layout>
   </n-space>
 </template>

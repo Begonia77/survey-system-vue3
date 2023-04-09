@@ -1,7 +1,21 @@
 <script setup>
-import { defineComponent, h, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { defineComponent, h, reactive, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { useMessage } from 'naive-ui'
 import logo from '../../assets/logo.png'
+
+const router = useRouter()
+const message = useMessage()
+const state = reactive({
+  currentUser: localStorage.getItem('currentUser'),
+  activeKey: null,
+  userHandle: [
+    {
+      label: '退出登录',
+      key: 1,
+    },
+  ],
+})
 
 const menuOptions = [
   {
@@ -50,7 +64,24 @@ const menuOptions = [
     key: 'go-back-paper',
   },
 ]
-const activeKey = ref(null)
+
+// 退出登录
+const logout = () => {
+  localStorage.removeItem('currentUser')
+  localStorage.removeItem('userId')
+  state.currentUser = null
+  state.activeKey = null
+  router.push({
+    name: 'home',
+  })
+}
+
+const handleSelect = (key) => {
+  if (key === 1) {
+    logout()
+    message.success('退出成功')
+  }
+}
 </script>
 
 <template>
@@ -59,25 +90,20 @@ const activeKey = ref(null)
       <n-image class="logo" fit="fill" :src="logo" />
     </n-grid-item>
     <n-grid-item :span="8">
-      <n-menu v-model:value="activeKey" class="cen" mode="horizontal" :options="menuOptions" />
+      <n-menu v-model:value="state.activeKey" class="cen" mode="horizontal" :options="menuOptions" />
     </n-grid-item>
     <n-grid-item :span="1">
-      <div v-if="!getUserName" class="cen">
+      <div v-if="state.currentUser" class="cen">
+        <n-dropdown trigger="click" :options="state.userHandle" @select="handleSelect">
+          <n-button>{{ state.currentUser }}</n-button>
+        </n-dropdown>
+      </div>
+      <div v-else class="cen">
         <span @click="$router.push('/login')">登录 </span>
         <span>|</span>
         <span @click="$router.push('/register')"> 注册</span>
       </div>
     </n-grid-item>
-    <!-- <n-grid-item :span="1">
-            <el-dropdown v-else @command="handleCommand" class="admin">
-              <span class="el-dropdown-link">
-                {{ getUserName }}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="a">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </n-grid-item> -->
   </n-grid>
 </template>
 

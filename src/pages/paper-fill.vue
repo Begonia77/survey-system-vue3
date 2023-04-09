@@ -21,7 +21,7 @@ const qsInfo = reactive<any>({
 
 qsInfo.list = {
   model: [{
-    survey_id: 1,
+    surveyId: 1,
     survey_title: '大学生熬夜情况调查',
     remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
     num: 100,
@@ -37,11 +37,11 @@ qsInfo.list = {
       type: 1,
       value: null,
       options: [{
-        option_id: 1,
+        optionId: 1,
         content: '男',
       },
       {
-        option_id: 2,
+        optionId: 2,
         content: '女',
       }],
     },
@@ -59,19 +59,19 @@ qsInfo.list = {
       type: 1,
       value: null,
       options: [{
-        option_id: 1,
+        optionId: 1,
         content: '10：00之前',
       },
       {
-        option_id: 2,
+        optionId: 2,
         content: '10：00---11：00',
       },
       {
-        option_id: 3,
+        optionId: 3,
         content: '11：00---12：00',
       },
       {
-        option_id: 4,
+        optionId: 4,
         content: '12：00之后',
       }],
     },
@@ -82,19 +82,19 @@ qsInfo.list = {
       type: 2,
       value: null,
       options: [{
-        option_id: 1,
+        optionId: 1,
         content: '学习',
       },
       {
-        option_id: 2,
+        optionId: 2,
         content: '工作',
       },
       {
-        option_id: 3,
+        optionId: 3,
         content: '娱乐',
       },
       {
-        option_id: 4,
+        optionId: 4,
         content: '其他',
       }],
     }],
@@ -169,8 +169,8 @@ const fillFinish = () => {
                   <n-radio-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
                       <n-radio
-                        v-for="option in question.options" :key="option.option_id" class="option"
-                        :value="option.option_id"
+                        v-for="option in question.options" :key="option.optionId" class="option"
+                        :value="option.optionId"
                       >
                         {{ option.content }}
                       </n-radio>
@@ -184,8 +184,8 @@ const fillFinish = () => {
                   <n-checkbox-group v-model:value="question.value" :name="question.question_id">
                     <n-space>
                       <n-checkbox
-                        v-for="option in question.options" :key="option.option_id" class="option"
-                        :value="option.option_id"
+                        v-for="option in question.options" :key="option.optionId" class="option"
+                        :value="option.optionId"
                       >
                         {{ option.content }}
                       </n-checkbox>

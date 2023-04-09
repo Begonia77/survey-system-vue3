@@ -3,6 +3,7 @@ import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import { useClipboard } from '@vueuse/core'
+import { paperInfo } from '../api/paper-info'
 import { constVal } from '../util/constVal'
 import { getPapersList } from '../api/all-paper'
 import { update } from '../api/update-paper'
@@ -51,9 +52,11 @@ const menuOptions = [
 ]
 const activeKey = ref(-1)
 const state = reactive({
+  userId: localStorage.getItem('userId'),
   modelRemark: '',
   createModelShow: false,
   modelId: 0,
+  qsList: [],
 })
 
 const message = useMessage()
@@ -64,51 +67,10 @@ const qsInfo = reactive<any>({
   list: [] as any[],
 })
 
-// qsInfo.list = [{
-//   survey_id: 1,
-//   survey_title: '大学生熬夜情况调查大学生熬夜情况调查',
-//   remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-//   num: 100,
-//   created_user_id: '李四',
-//   count_fill_in: 100,
-//   created_time: '2023-05-01 12:00:00',
-//   state: 2,
-// },
-// {
-//   survey_id: 2,
-//   survey_title: '学生疫情防控每日报表',
-//   remark: '学生疫情防控每日报表',
-//   num: 48,
-//   created_user_id: '张三',
-//   count_fill_in: 100,
-//   created_time: '2021-05-04 12:00:00',
-//   state: 0,
-// },
-// {
-//   survey_id: 3,
-//   survey_title: '大学生恋爱情况调查',
-//   remark: '大学生恋爱情况调查大学生恋爱情况调查',
-//   num: 59,
-//   created_user_id: '六六',
-//   count_fill_in: 1009,
-//   created_time: '2022-05-01 12:00:00',
-//   state: 1,
-// },
-// {
-//   survey_id: 4,
-//   survey_title: '大学生恋爱情况调查',
-//   remark: '大学生恋爱情况调查大学生恋爱情况调查',
-//   num: 30,
-//   created_user_id: '王五',
-//   count_fill_in: 10,
-//   created_time: '2021-03-01 12:00:00',
-//   state: 2,
-// },
-// ]
-
 const getAllPaperList = async () => {
   const res = await getPapersList()
-  qsInfo.list = res.data
+  qsInfo.list = res.data.data.filter((item: any) => item.createdUserId === +state.userId!)
+  console.log(qsInfo.list)
 }
 
 // 根据问卷状态state筛选问卷，用计算属性实现, 0未发布，1已发布，2已结束
@@ -158,11 +120,21 @@ const handleOperate = (key: string | number, id: number) => {
   state.modelId = id
   state.createModelShow = true
 }
-const submitModel = () => {
+const submitModel = async () => {
   // 创建模板
   message.success('模板创建成功')
-  console.log(state.modelId)
-  console.log(state.modelRemark)
+  // console.log(state.modelId)
+  // console.log(state.modelRemark)
+  const res = await paperInfo.getPaperInfoById(state.modelId)
+  if (res.data.data) {
+    // console.log(res.data.data)
+    res.data.data.remark = state.modelRemark
+    res.data.data.state = 4
+    res.data.data.surveyId = null
+    console.log(res.data.data)
+    update.postNewModel(res.data.data)
+  }
+
   state.modelRemark = ''
   // TODO:创建模板
 }
@@ -277,7 +249,7 @@ const deletePaper = (id: number) => {
     positiveText: '删除',
     negativeText: '取消',
     onPositiveClick: () => {
-      update.postPaperUnpublish(id).then((res) => {
+      update.postPaperDelete(id).then((res) => {
         if (res.status === 200) {
           message.success('删除成功')
           getAllPaperList()
@@ -320,18 +292,17 @@ onMounted(() => {
           </n-space>
         </div>
 
-        <div v-for="item in filterQs(activeKey)" v-show="item.state !== 4" :key="item.survey_id" class="card">
+        <div v-for="item in filterQs(activeKey)" v-show="item.state !== 4" :key="item.surveyId" class="card">
           <div class="head">
             <n-popover trigger="hover" placement="left">
               <template #trigger>
-                <a class="title" @click="prePaper(item.survey_id)">{{ item.survey_title }}</a>
+                <a class="title" @click="prePaper(item.surveyId)">{{ item.surveyTitle }}</a>
               </template>
-              <a @click="prePaper(item.survey_id)">预览问卷</a>
+              <a @click="prePaper(item.surveyId)">预览问卷</a>
             </n-popover>
-            <!-- <span class="title">{{ item.title }}</span> -->
             <span>
               答卷：{{ item.count_fill_in }} <i />
-              创建时间：{{ item.created_time }} <i />
+              创建时间：{{ item.createdTime }} <i />
               <n-tag v-if="constVal.UN_PUBLISH.value === item.state" type="warning">
                 未发布
               </n-tag>
@@ -347,40 +318,40 @@ onMounted(() => {
             <span>
               <n-dropdown
                 v-if="constVal.IS_PUBLISH.value === item.state" trigger="click" :options="sendQs"
-                @select="handleSend($event, item.survey_id)"
+                @select="handleSend($event, item.surveyId)"
               >
                 <n-button class="drop">发送问卷</n-button>
               </n-dropdown>
               <n-dropdown
                 v-if="constVal.UN_PUBLISH.value !== item.state" trigger="click" :options="statisticalQs"
-                @select="handleStatistical($event, item.survey_id)"
+                @select="handleStatistical($event, item.surveyId)"
               >
                 <n-button class="drop">统计问卷</n-button>
               </n-dropdown>
-              <n-dropdown trigger="click" :options="operateQs" @select="handleOperate($event, item.survey_id)">
+              <n-dropdown trigger="click" :options="operateQs" @select="handleOperate($event, item.surveyId)">
                 <n-button class="drop">操作问卷</n-button>
               </n-dropdown>
             </span>
             <span>
               <n-button
                 v-if="constVal.UN_PUBLISH.value === item.state" type="info" class="btn"
-                @click="publishPaper(item.survey_id)"
+                @click="publishPaper(item.surveyId)"
               >
                 发布
               </n-button>
               <n-button
                 v-if="constVal.UN_PUBLISH.value === item.state" type="success" class="btn"
-                @click="editPaper(item.survey_id)"
+                @click="editPaper(item.surveyId)"
               >
                 编辑
               </n-button>
               <n-button
                 v-if="constVal.IS_PUBLISH.value === item.state" type="warning" class="btn"
-                @click="endPaper(item.survey_id)"
+                @click="endPaper(item.surveyId)"
               >
                 结束
               </n-button>
-              <n-button type="error" class="btn" @click="deletePaper(item.survey_id)">
+              <n-button type="error" class="btn" @click="deletePaper(item.surveyId)">
                 删除
               </n-button>
             </span>

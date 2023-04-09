@@ -2,11 +2,11 @@ import request from '../util/request'
 
 function postPaperUnpublish(id) {
   return request({
-    url: '/Survey/UpdataSurvey',
+    url: '/Survey/UpdateSurveyState',
     method: 'post',
     // 传递的参数
     data: {
-      survey_id: id,
+      surveyId: id,
       state: 0,
     },
   })
@@ -14,11 +14,11 @@ function postPaperUnpublish(id) {
 
 function postPaperPublish(id) {
   return request({
-    url: '/Survey/UpdataSurvey',
+    url: '/Survey/UpdateSurveyState',
     method: 'post',
     // 传递的参数
     data: {
-      survey_id: id,
+      surveyId: id,
       state: 1,
     },
   })
@@ -26,11 +26,11 @@ function postPaperPublish(id) {
 
 function postPaperEnd(id) {
   return request({
-    url: '/Survey/UpdataSurvey',
+    url: '/Survey/UpdateSurveyState',
     method: 'post',
     // 传递的参数
     data: {
-      survey_id: id,
+      surveyId: id,
       state: 2,
     },
   })
@@ -38,11 +38,11 @@ function postPaperEnd(id) {
 
 function postPaperModel(id) {
   return request({
-    url: '/Survey/UpdataSurvey',
+    url: '/Survey/UpdateSurveyState',
     method: 'post',
     // 传递的参数
     data: {
-      survey_id: id,
+      surveyId: id,
       state: 3,
     },
   })
@@ -50,13 +50,22 @@ function postPaperModel(id) {
 
 function postPaperDelete(id) {
   return request({
-    url: '/Survey/UpdataSurvey',
+    url: '/Survey/UpdateSurveyState',
     method: 'post',
     // 传递的参数
     data: {
-      survey_id: id,
+      surveyId: id,
       state: 4,
     },
+  })
+}
+
+function postNewModel(model) {
+  return request({
+    url: '/Survey/InsertSurvey',
+    method: 'post',
+    // 传递的参数
+    data: model,
   })
 }
 
@@ -66,4 +75,5 @@ export const update = {
   postPaperEnd,
   postPaperModel,
   postPaperDelete,
+  postNewModel,
 }

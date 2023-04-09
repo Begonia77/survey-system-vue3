@@ -39,7 +39,7 @@ const removeItem = (index: number) => {
 }
 
 const addItem = (index: number) => {
-  topicInfo.options.push({ option_id: index, content: '' })
+  topicInfo.options.push({ optionId: index, content: '' })
 }
 
 // 完成编辑
@@ -112,8 +112,8 @@ const value = ref('')
         <n-checkbox-group v-model:value="value" :name="qsId">
           <n-space>
             <n-checkbox
-              v-for="option in qsData.qsOptions" :key="option.option_id" class="option"
-              :value="option.option_id"
+              v-for="option in qsData.qsOptions" :key="option.optionId" class="option"
+              :value="option.optionId"
             >
               {{ option.content }}
             </n-checkbox>

@@ -24,8 +24,8 @@ const state = reactive({
   isNewPaper: true,
   search: '',
   qsInfo: {
-    survey_id: -1,
-    survey_title: '请输入标题',
+    surveyId: -1,
+    surveyTitle: '请输入标题',
     remark: '',
     state: 0,
     count_question: 0,
@@ -68,10 +68,12 @@ const saveDialog = ref([
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
   const res = await paperInfo.getPaperInfoById(paperId)
-  if (res.data) {
+  if (res.data.data) {
     state.isNewPaper = false
-    state.qsInfo = res.data
+    state.qsInfo = res.data.data
   }
+  console.log(res.data.data)
+  // console.log(constVal.qsTypeMap.get(state.qsInfo.questionList[0]).comp)
 }
 
 const searchKeyword = async (keyword) => {
@@ -128,20 +130,20 @@ const compRefList = ref([])
 
 // 修改问卷标题和描述相关
 const value = reactive({
-  title: state.qsInfo.survey_title,
+  title: state.qsInfo.surveyTitle,
   remark: state.qsInfo.remark,
 })
 const cancelTitleUpdata = () => {
   message.info('取消修改')
-  value.title = state.qsInfo.survey_title
+  value.title = state.qsInfo.surveyTitle
 }
 const submitTitleUpdata = () => {
   if (value.title === '') {
     message.error('问卷标题不能为空，修改失败')
-    value.title = state.qsInfo.survey_title
+    value.title = state.qsInfo.surveyTitle
     return
   }
-  state.qsInfo.survey_title = value.title
+  state.qsInfo.surveyTitle = value.title
   message.success('问卷标题修改成功')
 }
 const cancelRemarkUpdata = () => {
@@ -156,7 +158,7 @@ const submitRemarkUpdata = () => {
 // 将题目排序
 const sortedQuestions = computed(() => {
   return state.qsInfo.questionList.slice().sort((item) => {
-    return item.question_order - item.question_order
+    return item.questionOrder - item.questionOrder
   })
 })
 // 计算题目总数
@@ -171,35 +173,35 @@ const deleteQs = (id) => {
     return
   }
   const qsIndex = state.qsInfo.questionList.findIndex((item) => {
-    return item.question_id === id
+    return item.questionId === id
   })
   state.qsInfo.questionList.splice(qsIndex, 1)
 }
 // 上移题目
 const moveUpQs = (index) => {
-  const temp = state.qsInfo.questionList[index].question_order
+  const temp = state.qsInfo.questionList[index].questionOrder
   const tempQs = state.qsInfo.questionList[index]
-  state.qsInfo.questionList[index].question_order = state.qsInfo.questionList[index - 1].question_order
-  state.qsInfo.questionList[index - 1].question_order = temp
+  state.qsInfo.questionList[index].questionOrder = state.qsInfo.questionList[index - 1].questionOrder
+  state.qsInfo.questionList[index - 1].questionOrder = temp
   state.qsInfo.questionList[index] = state.qsInfo.questionList[index - 1]
   state.qsInfo.questionList[index - 1] = tempQs
 }
 // 下移题目
 const moveDownQs = (index) => {
-  const temp = state.qsInfo.questionList[index].question_order
-  state.qsInfo.questionList[index].question_order = state.qsInfo.questionList[index + 1].question_order
-  state.qsInfo.questionList[index + 1].question_order = temp
+  const temp = state.qsInfo.questionList[index].questionOrder
+  state.qsInfo.questionList[index].questionOrder = state.qsInfo.questionList[index + 1].questionOrder
+  state.qsInfo.questionList[index + 1].questionOrder = temp
   const tempQs = state.qsInfo.questionList[index]
   state.qsInfo.questionList[index] = state.qsInfo.questionList[index + 1]
   state.qsInfo.questionList[index + 1] = tempQs
 }
 
-// 将saveDialog数组里的options里添加option_id并且将text转化为content
+// 将saveDialog数组里的options里添加optionId并且将text转化为content
 // const saveDialogWithId = computed(() => {
 //   const temp = []
 //   saveDialog.value.forEach((item, index) => {
 //     const tempItem = {
-//       question_id: index + 1,
+//       questionId: index + 1,
 //       question: item.title,
 //       type: 1,
 //       value: null,
@@ -207,7 +209,7 @@ const moveDownQs = (index) => {
 //     }
 //     item.optionList.forEach((option, optionIndex) => {
 //       tempItem.optionList.push({
-//         option_id: optionIndex + 1,
+//         optionId: optionIndex + 1,
 //         content: option.text,
 //       })
 //     })
@@ -229,18 +231,18 @@ const addRadioQuestion = async () => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: '',
     type: 1,
     value: null,
     optionList: [{
-      option_id: 1,
+      optionId: 1,
       content: '',
     }, {
-      option_id: 2,
+      optionId: 2,
       content: '',
     }],
   })
@@ -250,18 +252,18 @@ const addCheckboxQuestion = async () => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: '',
     type: 2,
     value: null,
     optionList: [{
-      option_id: 1,
+      optionId: 1,
       content: '',
     }, {
-      option_id: 2,
+      optionId: 2,
       content: '',
     }],
   })
@@ -271,10 +273,10 @@ const addShortAnswerQuestion = async () => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: '',
     type: 3,
     content: null,
@@ -285,10 +287,10 @@ const addLongAnswerQuestion = async () => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: '',
     type: 4,
     content: null,
@@ -299,14 +301,14 @@ const gptAddRadioQuestion = async (index) => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   for (let i = 0; i < saveDialog.value[index].optionList.length; i += 1) {
-    saveDialog.value[index].optionList[i].option_id = i + 1
+    saveDialog.value[index].optionList[i].optionId = i + 1
     saveDialog.value[index].optionList[i].content = saveDialog.value[index].optionList[i].text
   }
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: saveDialog.value[index].title,
     type: 1,
     value: null,
@@ -317,14 +319,14 @@ const gptAddCheckboxQuestion = async (index) => {
   if (state.qsInfo.questionList.length === 0)
     order = 1
   else
-    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].question_order + 1
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
   for (let i = 0; i < saveDialog.value[index].optionList.length; i += 1) {
-    saveDialog.value[index].optionList[i].option_id = i + 1
+    saveDialog.value[index].optionList[i].optionId = i + 1
     saveDialog.value[index].optionList[i].content = saveDialog.value[index].optionList[i].text
   }
   state.qsInfo.questionList.push({
-    question_id: await nanoid(),
-    question_order: order,
+    questionId: await nanoid(),
+    questionOrder: order,
     question: saveDialog.value[index].title,
     type: 2,
     value: null,
@@ -393,7 +395,7 @@ const goBack = () => {
           </n-collapse-item>
           <n-collapse-item title="问卷大纲" name="2">
             <div
-              v-for="(question, index) of sortedQuestions" :key="question.question_id" :question="question.question_id"
+              v-for="(question, index) of sortedQuestions" :key="question.questionId" :question="question.questionId"
               :index="index" style="margin-top: 3px;"
             >
               {{ index + 1 }}、{{ question.question }}
@@ -407,7 +409,7 @@ const goBack = () => {
         <div class="contain">
           <div class="head">
             <div class="title" @click="state.updataTitle = true">
-              {{ state.qsInfo.survey_title }}
+              {{ state.qsInfo.surveyTitle }}
             </div>
             <n-modal
               v-model:show="state.updataTitle" :trap-focus="false" :mask-closable="false" preset="dialog"
@@ -430,15 +432,15 @@ const goBack = () => {
           <div class="body">
             <n-form ref="formRef">
               <n-form-item-gi
-                v-for="(question, index) of sortedQuestions" :key="question.question_id"
-                :question="question.question_id" :index="index"
+                v-for="(question, index) of sortedQuestions" :key="question.questionId"
+                :question="question.questionId" :index="index"
               >
                 <component
                   :is="constVal.qsTypeMap.get(question.type).comp"
                   :ref="el => compRefList[index] = el"
                   :qs-index="index + 1" :qs-title="question.question" :qs-options="question.optionList"
-                  :qs-value="question.value" :qs-id="question.question_id" :qs-length="qsNum" :is-new-qs="state.isNewQs"
-                  @delete-qs="deleteQs(question.question_id)" @move-up-qs="moveUpQs(index)"
+                  :qs-value="question.value" :qs-id="question.questionId" :qs-length="qsNum" :is-new-qs="state.isNewQs"
+                  @delete-qs="deleteQs(question.questionId)" @move-up-qs="moveUpQs(index)"
                   @move-down-qs="moveDownQs(index)"
                 />
               </n-form-item-gi>

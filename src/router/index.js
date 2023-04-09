@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-const publicRoutes = [
+const routes = [
   {
     path: '/',
     component: () => import('../pages/index.vue'),
@@ -53,9 +53,22 @@ const publicRoutes = [
     component: () => import('../pages/paper-analyse.vue'),
   },
 ]
+// eslint-disable-next-line new-cap
 const router = new createRouter({
   history: createWebHashHistory(),
-  routes: publicRoutes,
+  routes,
+})
+// 路由守卫，没有登录的不能访问paper相关页面
+router.beforeEach((to, from, next) => {
+  if (to.name === 'paper') {
+    if (localStorage.getItem('userId'))
+      next()
+    else
+      next('/login')
+  }
+  else {
+    next()
+  }
 })
 
 export default router
