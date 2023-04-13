@@ -34,37 +34,7 @@ const state = reactive({
 })
 
 // gpt相关
-const saveDialog = ref([
-  {
-    title: '您的恋爱对象是否是大学同学？',
-    optionList: [
-      {
-        text: '是',
-      },
-      {
-        text: '否',
-      },
-    ],
-  }, {
-    title: '您认为大学生恋爱的最大困难是什么？',
-    optionList: [
-      {
-        text: '时间和学业压力',
-      },
-      {
-        text: '经济压力',
-      },
-      {
-        text: '家庭的反对或不支持',
-      },
-      {
-        text: '空间和住宿问题',
-      },
-      {
-        text: '社交压力和舆论压力',
-      },
-    ],
-  }])
+const saveDialog = ref([])
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
   const res = await paperInfo.getPaperInfoById(paperId)
@@ -79,46 +49,6 @@ const getPaperInfo = async () => {
 const searchKeyword = async (keyword) => {
   state.waitting = true
   const res = await chatGpt.postChatGptQs(keyword)
-  // 定时器模拟请求
-  // const res = await new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve({
-  //       data: {
-  //         questionList: [
-  //           {
-  //             title: '您的恋爱对象是大学同学？',
-  //             optionList: [
-  //               {
-  //                 text: '是',
-  //               },
-  //               {
-  //                 text: '这怎么不许呢',
-  //               },
-  //             ],
-  //           }, {
-  //             title: '您认为大学生恋爱的最大困难是什么？',
-  //             optionList: [
-  //               {
-  //                 text: '时间和学业压力',
-  //               },
-  //               {
-  //                 text: '经济压力',
-  //               },
-  //               {
-  //                 text: '家庭的反对或不支持',
-  //               },
-  //               {
-  //                 text: '空间和住宿问题',
-  //               },
-  //               {
-  //                 text: '社交压力和舆论压力',
-  //               },
-  //             ],
-  //           }],
-  //       },
-  //     })
-  //   }, 10000)
-  // })
   if (res.data) {
     saveDialog.value = res.data.questionList
     state.waitting = false
@@ -336,15 +266,62 @@ const gptAddCheckboxQuestion = async (index) => {
 
 const submitEdit = () => {
   for (const comp of compRefList.value) {
+    if (!comp)
+      continue
     if (comp.state.isEdit || comp.state.isNew) {
       message.warning('您还有未编辑的题目，无法提交')
       return
     }
   }
-  // 转换成json格式
-  const qsInfo = JSON.stringify(state.qsInfo)
-  console.log(qsInfo)
-  // router.go(-1)
+  if (state.qsInfo.state === 4) {
+    // 模板创建问卷
+    state.qsInfo.state = 0
+    state.qsInfo.surveyId = null
+    state.qsInfo.createdTime = null
+    state.qsInfo.createdUserId = localStorage.getItem('userId')
+    state.qsInfo.questionList.forEach((question) => {
+      question.surveyId = null
+      question.questionId = null
+      question.optionList.forEach((option) => {
+        option.questionId = null
+        option.optionId = null
+      })
+    })
+    paperInfo.postCreatePaper(state.qsInfo)
+  }
+  else if (paperId) {
+    // 编辑问卷
+    console.log(state.qsInfo)
+    // 如果questionId是字符串类型，则改为null
+    state.qsInfo.questionList.forEach((question) => {
+      if (typeof question.questionId === 'string')
+        question.questionId = null
+      question.optionList.forEach((option) => {
+        option.optionId = null
+      })
+    })
+    paperInfo.postEditPaper(state.qsInfo)
+  }
+  else {
+    // 编辑问卷
+    state.qsInfo.state = 0
+    state.qsInfo.surveyId = null
+    state.qsInfo.createdTime = null
+    state.qsInfo.createdUserId = localStorage.getItem('userId')
+    state.qsInfo.questionList.forEach((question) => {
+      question.surveyId = null
+      question.questionId = null
+      question.optionList.forEach((option) => {
+        option.questionId = null
+        option.optionId = null
+      })
+    })
+    paperInfo.postCreatePaper(state.qsInfo)
+  }
+
+  router.push({
+    name: 'paper',
+  })
 }
 
 // 返回上一级

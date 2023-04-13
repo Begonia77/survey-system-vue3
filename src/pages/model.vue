@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPapersList } from '../api/all-paper'
 const router = useRouter()
@@ -9,7 +9,16 @@ const qsInfo = reactive({
 
 const getAllModelList = async () => {
   const res = await getPapersList()
-  qsInfo.list = res.data.data.filter((item) => item.state === 4)
+  qsInfo.list = res.data.data.filter(item => item.state === 4)
+}
+
+const createPaper = (item) => {
+  router.push({
+    name: 'paperEdit',
+    query: {
+      id: item.surveyId,
+    },
+  })
 }
 
 const prePaper = (id) => {
@@ -27,24 +36,24 @@ onMounted(() => {
 
 <template>
   <div style="padding: 20px 75px;">
-      <n-input-group style="padding-bottom: 30px;">
-        <span style="margin-right: 10px;">标题</span>
-        <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
-        <n-button type="primary" ghost>
-          搜索
-        </n-button>
-      </n-input-group>
+    <n-input-group style="padding-bottom: 30px;">
+      <span style="margin-right: 10px;">标题</span>
+      <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
+      <n-button type="primary" ghost>
+        搜索
+      </n-button>
+    </n-input-group>
 
     <n-grid x-gap="80" y-gap="40" :cols="9">
       <n-grid-item v-for="item in qsInfo.list" :key="item.surveyId" :span="3" class="card">
         <div class="title">
           <a class="tt" @click="prePaper(item.surveyId)">{{ item.surveyTitle }}</a>
-          <n-button style="float: right; --n-height:28px;" strong secondary round type="info">
+          <n-button style="float: right; --n-height:28px;" strong secondary round type="info" @click="createPaper(item)">
             创建
           </n-button>
         </div>
         <div class="des">
-          {{ item.remark?item.remark:'未填写描述' }}
+          {{ item.remark ? item.remark : '未填写描述' }}
         </div>
         <div class="foot">
           <span>共 {{ item.count_question }} 题</span>

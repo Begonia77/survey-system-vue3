@@ -70,7 +70,6 @@ const qsInfo = reactive<any>({
 const getAllPaperList = async () => {
   const res = await getPapersList()
   qsInfo.list = res.data.data.filter((item: any) => item.createdUserId === +state.userId!)
-  console.log(qsInfo.list)
 }
 
 // 根据问卷状态state筛选问卷，用计算属性实现, 0未发布，1已发布，2已结束
@@ -121,22 +120,16 @@ const handleOperate = (key: string | number, id: number) => {
   state.createModelShow = true
 }
 const submitModel = async () => {
-  // 创建模板
   message.success('模板创建成功')
-  // console.log(state.modelId)
-  // console.log(state.modelRemark)
   const res = await paperInfo.getPaperInfoById(state.modelId)
   if (res.data.data) {
-    // console.log(res.data.data)
     res.data.data.remark = state.modelRemark
     res.data.data.state = 4
-    res.data.data.surveyId = null
     console.log(res.data.data)
     update.postNewModel(res.data.data)
   }
 
   state.modelRemark = ''
-  // TODO:创建模板
 }
 const cancelModel = () => {
   message.info('模板创建取消')

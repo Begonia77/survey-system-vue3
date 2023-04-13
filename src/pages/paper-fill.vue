@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, unref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInst } from 'naive-ui'
 import { FormItemRule, useMessage } from 'naive-ui'
 import { paperInfo } from '../api/paper-info'
+import { getPapersList } from '../api/fill'
 
 const route = useRoute()
 const paperId = route.query.id
 
 const state = reactive({
+  num: 0,
   qsInfo: {} as any,
   isNewPaper: true,
   surveyForm: {} as any,
+  ans: { questionList: [] } as any,
 })
 
 const getPaperInfo = async () => {
@@ -136,23 +139,33 @@ const sortedQuestions = computed(() => {
   })
 })
 const formRef = ref(null)
-const fillFinish = () => {
+const fillFinish = async () => {
   console.log(state.surveyForm)
-  // const form = sortedQuestions.value[0].questions.map((item: any) => {
-  //   return {
-  //     questionId: item.questionId,
-  //     value: item.value || item.content,
-  //   }
-  // })
-
-  // if (form) {
-  //   form.validate().then((res) => {
-  //     console.log(res)
-  //   })
-  // }
-  // else {
-  //   console.log('error')
-  // }
+  Object.keys(state.surveyForm).forEach((key) => {
+    if (state.surveyForm[key] === null) {
+      // message.error('请填写完整问卷')
+      console.log('请填写完整问卷')
+    }
+    state.ans.surveyId = state.qsInfo.surveyId
+    state.ans.createdUserId = 1
+    if (state.qsInfo?.questionList[state.num]?.type === 2 || state.qsInfo?.questionList[state.num]?.type === 1) {
+      const content = Array.isArray(unref(state.surveyForm[key])) ? `${unref(state.surveyForm[key]).join(',')},` : `${state.surveyForm[key]},`
+      state.ans.questionList.push({
+        questionId: +key,
+        type: state.qsInfo?.questionList[state.num]?.type,
+        content,
+      })
+    }
+    else {
+      state.ans.questionList.push({
+        questionId: +key,
+        type: state.qsInfo?.questionList[state.num]?.type,
+        content: state.surveyForm[key],
+      })
+    }
+    state.num = state.num + 1
+  })
+  await getPapersList(state.ans)
 }
 onMounted(() => {
   getPaperInfo()

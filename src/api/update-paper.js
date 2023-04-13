@@ -55,14 +55,14 @@ function postPaperDelete(id) {
     // 传递的参数
     data: {
       surveyId: id,
-      state: 4,
+      state: 0,
     },
   })
 }
 
 function postNewModel(model) {
   return request({
-    url: '/Survey/InsertSurvey',
+    url: '/Survey/CreateTemplate',
     method: 'post',
     // 传递的参数
     data: model,

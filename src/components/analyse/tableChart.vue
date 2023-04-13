@@ -1,24 +1,38 @@
-<script setup>
+<script lang="ts" setup>
 import * as echarts from 'echarts'
 import { NButton, NTag } from 'naive-ui'
 import { defineProps, h, onMounted, reactive, ref } from 'vue'
 
-const props = defineProps(['qsAnswer'])
-console.log(props.qsAnswer)
-// 组装图表所需参数并传入
-const opts = props.qsAnswer.answers
-const label = []
-const data1 = []
-const data2 = []
-for (const i in opts) {
-  label.push(opts[i].option)
-  data1.push(parseInt(opts[i].subtotal))
-  const ans = {
-    name: opts[i].option,
-    value: parseInt(opts[i].subtotal),
+interface Props {
+  countFillIn: number
+  qsAnswer: {
+    surveyId: number
+    questionId: number
+    question: string
+    questionOrder: number
+    type: number
+    remark: string
+    content: string
+    optionList: {
+      questionId: number
+      optionId: number
+      content: string
+      count: number
+    }[]
   }
-  data2.push(ans)
 }
+
+const props = defineProps<Props>()
+
+const state = reactive({
+  label: [] as string[],
+  data1: [] as number[],
+  data2: [] as { name: string; value: number }[],
+  data: [] as any[],
+})
+
+// 组装图表所需参数并传入
+
 const columns = [
   {
     title: '选项',
@@ -35,42 +49,55 @@ const columns = [
 ]
 // 将数据转换为表格所需的数据格式
 const createData = () => {
-  const data = []
-  props.qsAnswer.answers.forEach((item, index) => {
+  const data: any[] = []
+  const totalCount = props.qsAnswer.optionList.reduce(
+    (prev, cur) => prev + cur.count,
+    0,
+  )
+  for (const item of props.qsAnswer.optionList) {
+    state.label.push(item.content)
+    state.data1.push(+item.count)
+    const ans = {
+      name: item.content,
+      value: +item.count,
+    }
+    state.data2.push(ans)
+  }
+  props.qsAnswer.optionList.forEach((item) => {
     data.push({
-      key: index,
-      option: item.option,
-      num: item.subtotal,
-      proportion: `${item.percentage}%`,
+      key: item.optionId,
+      option: item.content,
+      num: item.count,
+      proportion: `${((item.count / totalCount) * 100).toFixed(2)}%`,
     })
   })
   return data
 }
-const data = createData()
 onMounted(() => {
+  state.data = createData()
   // 基于准备好的dom，初始化echarts实例
   const myChart = echarts.init(
-    document.getElementById(`${props.qsAnswer.qs_order}1`),
+    document.getElementById(`${props.qsAnswer.questionOrder}1`)!,
   )
   // 绘制图表
   myChart.setOption({
     title: {},
     tooltip: {},
     xAxis: {
-      data: label,
+      data: state.label,
     },
     yAxis: {},
     series: [
       {
         name: '',
         type: 'bar',
-        data: data1,
+        data: state.data1,
       },
     ],
   })
   // 基于准备好的dom，初始化echarts实例
   const myChart2 = echarts.init(
-    document.getElementById(`${props.qsAnswer.qs_order}2`),
+    document.getElementById(`${props.qsAnswer.questionOrder}2`)!,
   )
   // 绘制图表，并改变饼图的颜色
   myChart2.setOption({
@@ -81,7 +108,7 @@ onMounted(() => {
         name: '',
         type: 'pie', // 设置图表类型为饼图
         radius: '65%', // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
-        data: data2, // 数据数组，name 为数据项名称，value 为数据项值
+        data: state.data2, // 数据数组，name 为数据项名称，value 为数据项值
         itemStyle: {
           // 设置饼图扇形的颜色
           color(params) {
@@ -106,13 +133,13 @@ onMounted(() => {
 <template>
   <div>
     <div class="emc-qs-title">
-      <span class="qs-title">{{ props.qsAnswer.qs_order }}.{{ props.qsAnswer.qs_title }}</span>
+      <span class="qs-title">{{ props.qsAnswer.questionOrder }}.{{ props.qsAnswer.question }}</span>
       <span
-        v-if="props.qsAnswer.qs_type === '11'"
+        v-if="props.qsAnswer.type === 1"
         class="qs-tip"
       >[单选题]</span>
       <span
-        v-if="props.qsAnswer.qs_type === '12'"
+        v-if="props.qsAnswer.type === 2"
         class="qs-tip"
       >[多选题]</span>
     </div>
@@ -120,7 +147,7 @@ onMounted(() => {
       :bordered="false"
       :single-line="false"
       :columns="columns"
-      :data="data"
+      :data="state.data"
     />
     <div class="tag1">
       <NTag type="error">
@@ -129,17 +156,17 @@ onMounted(() => {
     </div>
     <div class="ems-qs-chart">
       <span
-        :id="`${props.qsAnswer.qs_order}1`"
+        :id="`${props.qsAnswer.questionOrder}1`"
         style="height: 300px; width: 400px"
       />
       <span
-        :id="`${props.qsAnswer.qs_order}2`"
+        :id="`${props.qsAnswer.questionOrder}2`"
         style="height: 300px; width: 400px"
       />
     </div>
     <div class="ems-qs-footer">
       <div>
-        <span>提交人数：{{ props.qsAnswer.submit_person }}</span>
+        <span>提交人数：{{ props.countFillIn }}</span>
       </div>
       <div>
         <NTag type="info" class="tag">
