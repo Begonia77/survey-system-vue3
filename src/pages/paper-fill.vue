@@ -1,123 +1,149 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInst } from 'naive-ui'
 import { FormItemRule, useMessage } from 'naive-ui'
+import { paperInfo } from '../api/paper-info'
 
 const route = useRoute()
 const paperId = route.query.id
 
-// 根据问卷id获取问卷信息
-// const getPaperInfo = async () => {
-//   const res = await getPaperInfoById(paperId);
-//   if (res.code === 200) {
-//     paperInfo = res.data;
-//   }
-// }
+const state = reactive({
+  qsInfo: {} as any,
+  isNewPaper: true,
+  surveyForm: {} as any,
+})
+
+const getPaperInfo = async () => {
+  const res = await paperInfo.getPaperInfoById(paperId)
+  state.qsInfo = res.data.data
+
+  state.qsInfo.questionList?.forEach((item: any) => {
+    if (item.questionType === 1)
+      state.surveyForm[item.questionId] = null
+
+    else if (item.questionType === 2)
+      state.surveyForm[item.questionId] = []
+
+    else if (item.questionType === 3)
+      state.surveyForm[item.questionId] = ''
+
+    else
+      state.surveyForm[item.questionId] = ''
+  })
+  console.log(state.qsInfo)
+}
 
 const qsInfo = reactive<any>({
   list: [] as any[],
 })
 
-qsInfo.list = {
-  model: [{
-    surveyId: 1,
-    survey_title: '大学生熬夜情况调查',
-    remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-    num: 100,
-    created_user_id: '李四',
-    ansNum: 100,
-    created_time: '2023-05-01 12:00:00',
-    state: 2,
-    // 以下是题目列表
-    questions: [{
-      question_id: 1,
-      question_order: 1,
-      question: '你的性别是？',
-      type: 1,
-      value: null,
-      options: [{
-        optionId: 1,
-        content: '男',
-      },
-      {
-        optionId: 2,
-        content: '女',
-      }],
-    },
-    {
-      question_id: 2,
-      question_order: 6,
-      question: '你的年级是？',
-      type: 3,
-      content: null,
-    },
-    {
-      question_id: 3,
-      question_order: 3,
-      question: '您晚上休息的时间是在：',
-      type: 1,
-      value: null,
-      options: [{
-        optionId: 1,
-        content: '10：00之前',
-      },
-      {
-        optionId: 2,
-        content: '10：00---11：00',
-      },
-      {
-        optionId: 3,
-        content: '11：00---12：00',
-      },
-      {
-        optionId: 4,
-        content: '12：00之后',
-      }],
-    },
-    {
-      question_id: 4,
-      question_order: 2,
-      question: '熬夜的原因？',
-      type: 2,
-      value: null,
-      options: [{
-        optionId: 1,
-        content: '学习',
-      },
-      {
-        optionId: 2,
-        content: '工作',
-      },
-      {
-        optionId: 3,
-        content: '娱乐',
-      },
-      {
-        optionId: 4,
-        content: '其他',
-      }],
-    }],
-  }],
-}
+// qsInfo.list = {
+//   model: [{
+//     surveyId: 1,
+//     survey_title: '大学生熬夜情况调查',
+//     remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
+//     num: 100,
+//     created_user_id: '李四',
+//     ansNum: 100,
+//     created_time: '2023-05-01 12:00:00',
+//     state: 2,
+//     // 以下是题目列表
+//     questions: [{
+//       questionId: 1,
+//       question_order: 1,
+//       question: '你的性别是？',
+//       type: 1,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '男',
+//       },
+//       {
+//         optionId: 2,
+//         content: '女',
+//       }],
+//     },
+//     {
+//       questionId: 2,
+//       question_order: 6,
+//       question: '你的年级是？',
+//       type: 3,
+//       content: null,
+//     },
+//     {
+//       questionId: 3,
+//       question_order: 3,
+//       question: '您晚上休息的时间是在：',
+//       type: 1,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '10：00之前',
+//       },
+//       {
+//         optionId: 2,
+//         content: '10：00---11：00',
+//       },
+//       {
+//         optionId: 3,
+//         content: '11：00---12：00',
+//       },
+//       {
+//         optionId: 4,
+//         content: '12：00之后',
+//       }],
+//     },
+//     {
+//       questionId: 4,
+//       question_order: 2,
+//       question: '熬夜的原因？',
+//       type: 2,
+//       value: null,
+//       options: [{
+//         optionId: 1,
+//         content: '学习',
+//       },
+//       {
+//         optionId: 2,
+//         content: '工作',
+//       },
+//       {
+//         optionId: 3,
+//         content: '娱乐',
+//       },
+//       {
+//         optionId: 4,
+//         content: '其他',
+//       }],
+//     }],
+//   }],
+// }
 
 // 写一个计算属性，将qsInfo.list.model里面的四个questions对象根据question_order进行排序，并返回
+// const sortedQuestions = computed(() => {
+//   return qsInfo.list.model.map((item: any) => {
+//     item.questions.sort((a: any, b: any) => {
+//       return a.question_order - b.question_order
+//     })
+//     return item
+//   })
+// })
+
 const sortedQuestions = computed(() => {
-  return qsInfo.list.model.map((item: any) => {
-    item.questions.sort((a: any, b: any) => {
-      return a.question_order - b.question_order
-    })
-    return item
+  return state.qsInfo.questionList?.slice().sort((item) => {
+    return item.questionOrder - item.questionOrder
   })
 })
 const formRef = ref(null)
 const fillFinish = () => {
-  const form = sortedQuestions.value[0].questions.map((item: any) => {
-    return {
-      question_id: item.question_id,
-      value: item.value || item.content,
-    }
-  })
+  console.log(state.surveyForm)
+  // const form = sortedQuestions.value[0].questions.map((item: any) => {
+  //   return {
+  //     questionId: item.questionId,
+  //     value: item.value || item.content,
+  //   }
+  // })
 
   // if (form) {
   //   form.validate().then((res) => {
@@ -128,6 +154,9 @@ const fillFinish = () => {
   //   console.log('error')
   // }
 }
+onMounted(() => {
+  getPaperInfo()
+})
 </script>
 
 <template>
@@ -150,26 +179,27 @@ const fillFinish = () => {
         <div class="contain">
           <div class="head">
             <div class="title">
-              {{ qsInfo.list.model[0].survey_title }}
+              {{ state.qsInfo.surveyTitle }}
             </div>
             <div class="des">
-              {{ qsInfo.list.model[0].remark }}
+              {{ state.qsInfo.remark }}
             </div>
           </div>
           <div class="body">
             <n-form
-              v-for="(question, index) of sortedQuestions[0].questions" ref="formRef"
-              :key="question.question_id" :question="question.question_id" :index="index"
+              v-for="(question, index) of sortedQuestions" ref="formRef"
+              :key="question.questionId" :question="question.questionId"
+              :index="index"
             >
               <n-grid :cols="24" :x-gap="24" :y-gap="24">
                 <n-form-item-gi
                   v-if="question.type === 1" class="options" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
-                  <n-radio-group v-model:value="question.value" :name="question.question_id">
+                  <n-radio-group v-model:value="state.surveyForm[question.questionId]" :name="question.questionId">
                     <n-space>
                       <n-radio
-                        v-for="option in question.options" :key="option.optionId" class="option"
+                        v-for="option in question.optionList" :key="option.optionId" class="option"
                         :value="option.optionId"
                       >
                         {{ option.content }}
@@ -181,10 +211,10 @@ const fillFinish = () => {
                   v-if="question.type === 2" class="options" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
-                  <n-checkbox-group v-model:value="question.value" :name="question.question_id">
+                  <n-checkbox-group v-model:value="state.surveyForm[question.questionId]" :name="question.questionId">
                     <n-space>
                       <n-checkbox
-                        v-for="option in question.options" :key="option.optionId" class="option"
+                        v-for="option in question.optionList" :key="option.optionId" class="option"
                         :value="option.optionId"
                       >
                         {{ option.content }}
@@ -196,7 +226,13 @@ const fillFinish = () => {
                   v-if="question.type === 3" class="options" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
-                  <n-input v-model:value="question.content" style="width: 450px;" placeholder="" />
+                  <n-input v-model:value="state.surveyForm[question.questionId]" style="width: 450px;" placeholder="" />
+                </n-form-item-gi>
+                <n-form-item-gi
+                  v-if="question.type === 4" class="options" :span="24"
+                  :label="`${index + 1}、${question.question}`" :path="question.value"
+                >
+                  <n-input v-model:value="state.surveyForm[question.questionId]" style="width: 450px;" placeholder="" />
                 </n-form-item-gi>
               </n-grid>
             </n-form>

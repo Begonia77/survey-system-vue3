@@ -78,47 +78,47 @@ const getPaperInfo = async () => {
 
 const searchKeyword = async (keyword) => {
   state.waitting = true
-  // const res = await chatGpt.postChatGptQs(keyword)
+  const res = await chatGpt.postChatGptQs(keyword)
   // 定时器模拟请求
-  const res = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          questionList: [
-            {
-              title: '您的恋爱对象是大学同学？',
-              optionList: [
-                {
-                  text: '是',
-                },
-                {
-                  text: '这怎么不许呢',
-                },
-              ],
-            }, {
-              title: '您认为大学生恋爱的最大困难是什么？',
-              optionList: [
-                {
-                  text: '时间和学业压力',
-                },
-                {
-                  text: '经济压力',
-                },
-                {
-                  text: '家庭的反对或不支持',
-                },
-                {
-                  text: '空间和住宿问题',
-                },
-                {
-                  text: '社交压力和舆论压力',
-                },
-              ],
-            }],
-        },
-      })
-    }, 10000)
-  })
+  // const res = await new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     resolve({
+  //       data: {
+  //         questionList: [
+  //           {
+  //             title: '您的恋爱对象是大学同学？',
+  //             optionList: [
+  //               {
+  //                 text: '是',
+  //               },
+  //               {
+  //                 text: '这怎么不许呢',
+  //               },
+  //             ],
+  //           }, {
+  //             title: '您认为大学生恋爱的最大困难是什么？',
+  //             optionList: [
+  //               {
+  //                 text: '时间和学业压力',
+  //               },
+  //               {
+  //                 text: '经济压力',
+  //               },
+  //               {
+  //                 text: '家庭的反对或不支持',
+  //               },
+  //               {
+  //                 text: '空间和住宿问题',
+  //               },
+  //               {
+  //                 text: '社交压力和舆论压力',
+  //               },
+  //             ],
+  //           }],
+  //       },
+  //     })
+  //   }, 10000)
+  // })
   if (res.data) {
     saveDialog.value = res.data.questionList
     state.waitting = false

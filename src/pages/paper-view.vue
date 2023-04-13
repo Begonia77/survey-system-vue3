@@ -3,8 +3,9 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInst } from 'naive-ui'
 import { FormItemRule, useMessage } from 'naive-ui'
-import { paperInfo } from 'src/api/paper-info'
+import { paperInfo } from '../api/paper-info'
 
+const router = useRouter()
 const route = useRoute()
 const paperId = route.query.id
 
@@ -17,9 +18,8 @@ const paperId = route.query.id
 // }
 
 const state = reactive({
-  paperInfo: {},
+  paperInfo: {} as any,
 })
-
 // state.paperInfo = {
 //   model: [{
 //     surveyId: 1,
@@ -32,12 +32,12 @@ const state = reactive({
 //     state: 2,
 //     // 以下是题目列表
 //     questions: [{
-//       question_id: 1,
+//       questionId: 1,
 //       question_order: 1,
 //       question: '你的性别是？',
 //       type: 1,
 //       value: null,
-//       options: [{
+//       questionList: [{
 //         optionId: 1,
 //         content: '男',
 //       },
@@ -47,19 +47,19 @@ const state = reactive({
 //       }],
 //     },
 //     {
-//       question_id: 2,
+//       questionId: 2,
 //       question_order: 6,
 //       question: '你的年级是？',
 //       type: 3,
 //       content: null,
 //     },
 //     {
-//       question_id: 3,
+//       questionId: 3,
 //       question_order: 3,
 //       question: '您晚上休息的时间是在：',
 //       type: 1,
 //       value: null,
-//       options: [{
+//       questionList: [{
 //         optionId: 1,
 //         content: '10：00之前',
 //       },
@@ -77,12 +77,12 @@ const state = reactive({
 //       }],
 //     },
 //     {
-//       question_id: 4,
+//       questionId: 4,
 //       question_order: 2,
 //       question: '熬夜的原因？',
 //       type: 2,
 //       value: null,
-//       options: [{
+//       questionList: [{
 //         optionId: 1,
 //         content: '学习',
 //       },
@@ -107,13 +107,13 @@ const state = reactive({
 const getPaperInfo = async () => {
   const res = await paperInfo.getPaperInfoById(paperId)
   state.paperInfo = res.data.data
-  console.log(res.data.data)
+  console.log(state.paperInfo)
 }
-// const sortedQuestions = computed(() => {
-//   return state.paperInfo.questionList.slice().sort((item) => {
-//     return item.questionOrder - item.questionOrder
-//   })
-// })
+const sortedQuestions = computed(() => {
+  return state.paperInfo.questionList?.slice().sort((item) => {
+    return item.questionOrder - item.questionOrder
+  })
+})
 // const sortedQuestions = computed(() => {
 //   return state.paperInfo.map((item: any) => {
 //     item.questions.sort((a: any, b: any) => {
@@ -123,7 +123,6 @@ const getPaperInfo = async () => {
 //   })
 // })
 const formRef = ref<FormInst | null>(null)
-const router = useRouter()
 // 返回上一级的方法
 const goBack = () => {
   router.go(-1)
@@ -146,11 +145,11 @@ onMounted(() => {
           </n-grid-item>
         </n-grid>
       </n-layout-header>
-      <!-- <n-layout-content>
+      <n-layout-content>
         <div class="contain">
           <div class="head">
             <div class="title">
-              {{ state.paperInfo.survey_title }}
+              {{ state.paperInfo.surveyTitle }}
             </div>
             <div class="des">
               {{ state.paperInfo.remark }}
@@ -158,33 +157,31 @@ onMounted(() => {
           </div>
           <div class="body">
             <n-form
-              v-for="(question, index) of sortedQuestions[0].questions" ref="formRef"
-              :key="question.question_id" :question="question.question_id" :index="index"
+              v-for="(question, index) of sortedQuestions" ref="formRef"
+              :key="question.questionId" :question="question.questionId" :index="index"
             >
               <n-grid :cols="24" :x-gap="24" :y-gap="24">
                 <n-form-item-gi
-                  v-if="question.type === 1" class="options" :span="24"
+                  v-if="question.type === 1" class="questionList" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
-                  <n-radio-group v-model:value="question.value" :name="question.question_id">
-                    <n-space>
-                      <n-radio
-                        v-for="option in question.options" :key="option.optionId" class="option"
-                        :value="option.optionId"
-                      >
-                        {{ option.content }}
-                      </n-radio>
-                    </n-space>
+                  <n-radio-group v-model:value="question.value" :name="question.questionId">
+                    <n-radio
+                      v-for="option in question.optionList" :key="option.optionId" class="option"
+                      :value="option.optionId"
+                    >
+                      {{ option.content }}
+                    </n-radio>
                   </n-radio-group>
                 </n-form-item-gi>
                 <n-form-item-gi
-                  v-if="question.type === 2" class="options" :span="24"
+                  v-if="question.type === 2" class="questionList" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
-                  <n-checkbox-group v-model:value="question.value" :name="question.question_id">
+                  <n-checkbox-group v-model:value="question.value" :name="question.questionId">
                     <n-space>
                       <n-checkbox
-                        v-for="option in question.options" :key="option.optionId" class="option"
+                        v-for="option in question.optionList" :key="option.optionId" class="option"
                         :value="option.optionId"
                       >
                         {{ option.content }}
@@ -193,16 +190,22 @@ onMounted(() => {
                   </n-checkbox-group>
                 </n-form-item-gi>
                 <n-form-item-gi
-                  v-if="question.type === 3" class="options" :span="24"
+                  v-if="question.type === 3" class="questionList" :span="24"
                   :label="`${index + 1}、${question.question}`" :path="question.value"
                 >
                   <n-input v-model:value="question.content" style="width: 450px;" placeholder="" />
+                </n-form-item-gi>
+                <n-form-item-gi
+                  v-if="question.type === 4" class="questionList" :span="24"
+                  :label="`${index + 1}、${question.question}`" :path="question.value"
+                >
+                  <n-input v-model:value="question.content" type="textarea" style="width: 450px;" placeholder="" />
                 </n-form-item-gi>
               </n-grid>
             </n-form>
           </div>
         </div>
-      </n-layout-content> -->
+      </n-layout-content>
     </n-layout>
   </n-space>
 </template>
@@ -262,7 +265,7 @@ onMounted(() => {
     .body {
       padding: 20px 10px;
 
-      .options {
+      .questionList {
         margin: 5px 0;
 
         .option {

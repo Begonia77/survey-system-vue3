@@ -169,6 +169,7 @@ const handleSend = (key: string | number, id: number) => {
 
 // 预览问卷
 const prePaper = (id: number) => {
+  console.log('预览问卷', id)
   router.push({
     name: 'paperView',
     query: {
