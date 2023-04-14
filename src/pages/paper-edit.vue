@@ -45,7 +45,6 @@ const getPaperInfo = async () => {
     state.isNewPaper = false
     state.qsInfo = res.data.data
   }
-  console.log(res.data.data)
   // console.log(constVal.qsTypeMap.get(state.qsInfo.questionList[0]).comp)
 }
 
@@ -285,7 +284,6 @@ const submitEdit = () => {
   //     return
   //   }
   // }
-  console.log(state.qsInfo)
   if (state.qsInfo.state === 4) {
     // 模板创建问卷
     state.qsInfo.state = 0

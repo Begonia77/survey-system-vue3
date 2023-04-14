@@ -107,7 +107,6 @@ const state = reactive({
 const getPaperInfo = async () => {
   const res = await paperInfo.getPaperInfoById(paperId)
   state.paperInfo = res.data.data
-  console.log(state.paperInfo)
 }
 const sortedQuestions = computed(() => {
   return state.paperInfo.questionList?.slice().sort((item) => {

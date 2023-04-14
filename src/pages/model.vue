@@ -2,9 +2,11 @@
 import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPapersList } from '../api/all-paper'
+import Kong from '../assets/kong.jpg'
 const router = useRouter()
 const qsInfo = reactive({
   list: [],
+  search: '',
 })
 
 const getAllModelList = async () => {
@@ -29,6 +31,16 @@ const prePaper = (id) => {
     },
   })
 }
+const onSearch = () => {
+  if (qsInfo.search) {
+    qsInfo.list = qsInfo.list.filter(item => item.surveyTitle.includes(qsInfo.search))
+  }
+
+  else {
+    qsInfo.list = []
+    getAllModelList()
+  }
+}
 onMounted(() => {
   getAllModelList()
 })
@@ -37,13 +49,23 @@ onMounted(() => {
 <template>
   <div style="padding: 20px 75px;">
     <n-input-group style="padding-bottom: 30px;">
-      <span style="margin-right: 10px;">标题</span>
-      <n-input :style="{ width: '30%' }" clearable placeholder="请输入标题" />
-      <n-button type="primary" ghost>
+      <span style="margin-right: 10px;margin-top: 5px;">标题</span>
+      <n-input v-model:value="qsInfo.search" :style="{ width: '30%' }" clearable placeholder="请输入模板标题" />
+      <n-button type="primary" ghost @click="onSearch">
         搜索
       </n-button>
     </n-input-group>
 
+    <n-result
+      v-if="qsInfo.list.length === 0" title="暂无模板"
+      description="在我的问卷中创建模板，可进行体验！"
+    >
+      <template #icon>
+        <div style="width: 400px; margin-top: 20px;">
+          <NImage object-fit="contain" width="400" :src="Kong" />
+        </div>
+      </template>
+    </n-result>
     <n-grid x-gap="80" y-gap="40" :cols="9">
       <n-grid-item v-for="item in qsInfo.list" :key="item.surveyId" :span="3" class="card">
         <div class="title">

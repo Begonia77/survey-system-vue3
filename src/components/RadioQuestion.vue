@@ -53,7 +53,7 @@ const finishEdit = () => {
       emit('finish-edit')
     }
     else {
-      console.log(errors)
+      // console.log(errors)
     }
   })
 }

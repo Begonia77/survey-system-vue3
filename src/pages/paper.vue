@@ -53,6 +53,7 @@ const menuOptions = [
 ]
 const activeKey = ref(-1)
 const state = reactive({
+  search: '',
   userId: localStorage.getItem('userId'),
   modelRemark: '',
   createModelShow: false,
@@ -126,7 +127,6 @@ const submitModel = async () => {
   if (res.data.data) {
     res.data.data.remark = state.modelRemark
     res.data.data.state = 4
-    console.log(res.data.data)
     update.postNewModel(res.data.data)
   }
 
@@ -155,15 +155,12 @@ const handleSend = (key: string | number, id: number) => {
     // router.push({
     //   name: 'paperQrcode',
     // })
-    console.log('二维码')
-    console.log(id)
     // TODO:生成二维码
   }
 }
 
 // 预览问卷
 const prePaper = (id: number) => {
-  console.log('预览问卷', id)
   router.push({
     name: 'paperView',
     query: {
@@ -188,7 +185,6 @@ const editPaper = (id: number) => {
       id,
     },
   })
-  // console.log('编辑问卷',id)
 }
 // 发布问卷
 const publishPaper = (id: number) => {
@@ -259,7 +255,6 @@ const deletePaper = (id: number) => {
     },
   })
 }
-
 onMounted(() => {
   getAllPaperList()
 })
@@ -277,14 +272,6 @@ onMounted(() => {
       <n-grid-item :span="17" class="qs">
         <div class="title">
           <h2>问卷列表</h2>
-          <n-space vertical>
-            <n-input-group>
-              <n-input clearable placeholder="请输入标题" />
-              <n-button type="primary" ghost>
-                搜索
-              </n-button>
-            </n-input-group>
-          </n-space>
         </div>
 
         <n-result
