@@ -10,6 +10,7 @@ const route = useRoute()
 const paperId = route.query.id
 
 const state = reactive({
+  isFinish: false,
   num: 0,
   qsInfo: {} as any,
   isNewPaper: true,
@@ -165,7 +166,9 @@ const fillFinish = async () => {
     }
     state.num = state.num + 1
   })
-  await getPapersList(state.ans)
+  // await getPapersList(state.ans)
+  state.isFinish = true
+  console.log(state)
 }
 onMounted(() => {
   getPaperInfo()
@@ -182,13 +185,13 @@ onMounted(() => {
             <span class="title">填写问卷</span>
           </n-grid-item>
           <n-grid-item :span="4">
-            <n-button type="success" @click="fillFinish">
+            <n-button v-if="!state.isFinish" type="success" @click="fillFinish">
               提交问卷
             </n-button>
           </n-grid-item>
         </n-grid>
       </n-layout-header>
-      <n-layout-content>
+      <n-layout-content v-if="!state.isFinish">
         <div class="contain">
           <div class="head">
             <div class="title">
@@ -252,11 +255,21 @@ onMounted(() => {
           </div>
         </div>
       </n-layout-content>
+      <div v-else class="tip">
+        <h2>问卷已填写完成，可关闭该页面</h2>
+      </div>
     </n-layout>
   </n-space>
 </template>
 
 <style lang="scss" scoped>
+.tip {
+  //垂直水平居中
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
 .n-layout-header {
   background: #1e649f;
   height: 60px;

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import { useClipboard } from '@vueuse/core'
 import { paperInfo } from '../api/paper-info'
+import Kong from '../assets/kong.jpg'
 import { constVal } from '../util/constVal'
 import { getPapersList } from '../api/all-paper'
 import { update } from '../api/update-paper'
@@ -285,6 +286,17 @@ onMounted(() => {
             </n-input-group>
           </n-space>
         </div>
+
+        <n-result
+          v-if="qsInfo.list.length === 0" title="暂无问卷"
+          description="请使用新建问卷，创建问卷进行体验！"
+        >
+          <template #icon>
+            <div style="width: 500px; margin-top: 20px;">
+              <NImage object-fit="contain" width="500" :src="Kong" />
+            </div>
+          </template>
+        </n-result>
 
         <div v-for="item in filterQs(activeKey)" v-show="item.state !== 4" :key="item.surveyId" class="card">
           <div class="head">

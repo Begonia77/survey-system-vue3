@@ -6,7 +6,7 @@ import { clone, cloneDeep } from 'lodash-es'
 
 const props = defineProps(['qsIndex', 'qsTitle', 'qsOptions', 'qsValue', 'qsId', 'qsLength', 'isNewQs'])
 
-const emit = defineEmits(['delete-qs', 'move-up-qs', 'move-down-qs'])
+const emit = defineEmits(['delete-qs', 'move-up-qs', 'move-down-qs', 'finish-edit'])
 
 const message = useMessage()
 
@@ -50,6 +50,7 @@ const finishEdit = () => {
       qsData.qsOptions = cloneDeep(topicInfo.options)
       state.isEdit = false
       state.isNew = false
+      emit('finish-edit')
     }
     else {
       // console.log(errors)
@@ -100,7 +101,7 @@ const handleShow = () => {
   state.handle = true
 }
 
-defineExpose({ state })
+defineExpose({ qsData })
 const value = ref('')
 </script>
 
@@ -108,7 +109,7 @@ const value = ref('')
   <div v-if="!state.isEdit && !state.isNew">
     <n-grid :x-gap="6" :cols="3" @mouseenter="handleShow" @mouseleave="state.handle = false">
       <n-grid-item :span="2">
-        {{ qsIndex }}、{{ topicInfo.name }}
+        {{ qsIndex }}、{{ topicInfo.name }} &nbsp;[多选题]
         <n-checkbox-group v-model:value="value" :name="qsId">
           <n-space>
             <n-checkbox

@@ -16,6 +16,8 @@ const paperId = route.query.id
 
 // 各种状态
 const state = reactive({
+  submitPaper: {},
+  compRefList: [],
   waitting: false,
   updataTitle: false,
   updataRemark: false,
@@ -35,6 +37,7 @@ const state = reactive({
 
 // gpt相关
 const saveDialog = ref([])
+
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
   const res = await paperInfo.getPaperInfoById(paperId)
@@ -56,7 +59,6 @@ const searchKeyword = async (keyword) => {
 }
 
 getPaperInfo()
-const compRefList = ref([])
 
 // 修改问卷标题和描述相关
 const value = reactive({
@@ -124,6 +126,16 @@ const moveDownQs = (index) => {
   const tempQs = state.qsInfo.questionList[index]
   state.qsInfo.questionList[index] = state.qsInfo.questionList[index + 1]
   state.qsInfo.questionList[index + 1] = tempQs
+}
+const updateQuestion = () => {
+  // 将state.compRefList里的数据更新到state.qsInfo里
+  state.compRefList.forEach((item) => {
+    const qsIndex = state.qsInfo.questionList.findIndex((qs) => {
+      return qs.questionId === item.qsData.qsId
+    })
+    state.qsInfo.questionList[qsIndex].question = item.qsData.qsTitle
+    state.qsInfo.questionList[qsIndex].optionList = item.qsData.qsOptions
+  })
 }
 
 // 将saveDialog数组里的options里添加optionId并且将text转化为content
@@ -265,20 +277,21 @@ const gptAddCheckboxQuestion = async (index) => {
 }
 
 const submitEdit = () => {
-  for (const comp of compRefList.value) {
-    if (!comp)
-      continue
-    if (comp.state.isEdit || comp.state.isNew) {
-      message.warning('您还有未编辑的题目，无法提交')
-      return
-    }
-  }
+  // for (const comp of state.compRefList.value) {
+  //   // if (!comp)
+  //   //   continue
+  //   if (comp.state.isEdit || comp.state.isNew) {
+  //     message.warning('您还有未编辑的题目，无法提交')
+  //     return
+  //   }
+  // }
+  console.log(state.qsInfo)
   if (state.qsInfo.state === 4) {
     // 模板创建问卷
     state.qsInfo.state = 0
     state.qsInfo.surveyId = null
     state.qsInfo.createdTime = null
-    state.qsInfo.createdUserId = localStorage.getItem('userId')
+    state.qsInfo.createdUserId = null
     state.qsInfo.questionList.forEach((question) => {
       question.surveyId = null
       question.questionId = null
@@ -291,32 +304,49 @@ const submitEdit = () => {
   }
   else if (paperId) {
     // 编辑问卷
-    console.log(state.qsInfo)
-    // 如果questionId是字符串类型，则改为null
     state.qsInfo.questionList.forEach((question) => {
-      if (typeof question.questionId === 'string')
+      if (typeof question.questionId === 'string') {
         question.questionId = null
-      question.optionList.forEach((option) => {
-        option.optionId = null
-      })
+        if (question.type === 1 || question.type === 2) {
+          question.optionList.forEach((option) => {
+            option.questionId = null
+            option.optionId = null
+          })
+        }
+      }
+      else {
+        if (question.type === 1 || question.type === 2) {
+          question.optionList.forEach((option) => {
+            option.questionId = null
+            option.optionId = null
+          })
+        }
+      }
     })
     paperInfo.postEditPaper(state.qsInfo)
   }
   else {
-    // 编辑问卷
-    state.qsInfo.state = 0
-    state.qsInfo.surveyId = null
-    state.qsInfo.createdTime = null
-    state.qsInfo.createdUserId = localStorage.getItem('userId')
+    // 新建问卷
+    state.submitPaper.surveyTitle = state.qsInfo.surveyTitle
+    state.submitPaper.remark = state.qsInfo.remark
+    state.submitPaper.questionList = []
     state.qsInfo.questionList.forEach((question) => {
-      question.surveyId = null
-      question.questionId = null
-      question.optionList.forEach((option) => {
-        option.questionId = null
-        option.optionId = null
-      })
+      const temp = {
+        questionOrder: question.questionOrder,
+        question: question.question,
+        type: question.type,
+        optionList: [],
+      }
+      if (question.type === 1 || question.type === 2) {
+        question.optionList.forEach((option) => {
+          temp.optionList.push({
+            content: option.content,
+          })
+        })
+      }
+      state.submitPaper.questionList.push(temp)
     })
-    paperInfo.postCreatePaper(state.qsInfo)
+    paperInfo.postCreatePaper(state.submitPaper)
   }
 
   router.push({
@@ -375,7 +405,7 @@ const goBack = () => {
               v-for="(question, index) of sortedQuestions" :key="question.questionId" :question="question.questionId"
               :index="index" style="margin-top: 3px;"
             >
-              {{ index + 1 }}、{{ question.question }}
+              {{ index + 1 }}、{{ question.question }} &nbsp;[{{ constVal.qsTypeMap.get(question.type).desc }}]
             </div>
           </n-collapse-item>
         </n-collapse>
@@ -414,11 +444,11 @@ const goBack = () => {
               >
                 <component
                   :is="constVal.qsTypeMap.get(question.type).comp"
-                  :ref="el => compRefList[index] = el"
+                  :ref="el => state.compRefList[index] = el"
                   :qs-index="index + 1" :qs-title="question.question" :qs-options="question.optionList"
                   :qs-value="question.value" :qs-id="question.questionId" :qs-length="qsNum" :is-new-qs="state.isNewQs"
                   @delete-qs="deleteQs(question.questionId)" @move-up-qs="moveUpQs(index)"
-                  @move-down-qs="moveDownQs(index)"
+                  @move-down-qs="moveDownQs(index)" @finish-edit="updateQuestion(index)"
                 />
               </n-form-item-gi>
             </n-form>
@@ -433,10 +463,10 @@ const goBack = () => {
             <n-spin size="large" />&nbsp;&nbsp;
             正在为您生成题目，请稍等...
           </div>
-          <div v-show="saveDialog !== undefined && !state.waitting">
+          <div v-show="!saveDialog && !state.waitting">
             这是我为您提供的题目：
           </div>
-          <div v-show="saveDialog === undefined && !state.waitting" class="title">
+          <div v-show="saveDialog && !state.waitting" class="title">
             <div>目前还没有您的提问！</div>
             <div>快发送问卷标题或者问题关键词给我吧！</div>
             <div>我会随机给您生成问题，供您选择！</div>

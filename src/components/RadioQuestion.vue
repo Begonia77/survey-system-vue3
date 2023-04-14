@@ -6,7 +6,7 @@ import { clone, cloneDeep } from 'lodash-es'
 
 const props = defineProps(['qsIndex', 'qsTitle', 'qsOptions', 'qsValue', 'qsId', 'qsLength', 'isNewQs'])
 
-const emit = defineEmits(['delete-qs', 'move-up-qs', 'move-down-qs'])
+const emit = defineEmits(['delete-qs', 'move-up-qs', 'move-down-qs', 'finish-edit'])
 
 const message = useMessage()
 
@@ -50,9 +50,10 @@ const finishEdit = () => {
       qsData.qsOptions = cloneDeep(topicInfo.options)
       state.isEdit = false
       state.isNew = false
+      emit('finish-edit')
     }
     else {
-      // console.log(errors)
+      console.log(errors)
     }
   })
 }
@@ -99,7 +100,7 @@ const moveDownQs = () => {
 const handleShow = () => {
   state.handle = true
 }
-defineExpose({ state })
+defineExpose({ qsData })
 const value = ref('')
 </script>
 
@@ -107,7 +108,7 @@ const value = ref('')
   <div v-if="!state.isEdit && !state.isNew">
     <n-grid :x-gap="6" :cols="3" @mouseenter="handleShow" @mouseleave="state.handle = false">
       <n-grid-item :span="2">
-        {{ qsIndex }}、{{ topicInfo.name }}
+        {{ qsIndex }}、{{ topicInfo.name }} &nbsp;[单选题]
         <n-radio-group v-model:value="value" :name="qsId">
           <n-space>
             <n-radio v-for="option in qsData.qsOptions" :key="option.optionId" class="option" :value="option.optionId">

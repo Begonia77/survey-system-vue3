@@ -60,7 +60,7 @@ const router = new createRouter({
 })
 // 路由守卫，没有登录的不能访问paper相关页面
 router.beforeEach((to, from, next) => {
-  if (to.name === 'paper') {
+  if (to.name === 'paper' || to.name === 'paperEdit') {
     if (localStorage.getItem('userId'))
       next()
     else
