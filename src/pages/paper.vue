@@ -3,6 +3,7 @@ import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import { useClipboard } from '@vueuse/core'
+import { isEmpty } from 'lodash-es'
 import { paperInfo } from '../api/paper-info'
 import Kong from '../assets/kong.jpg'
 import { constVal } from '../util/constVal'
@@ -78,7 +79,6 @@ const getAllPaperList = async () => {
 const filterQs = (state: number) => {
   if (state === -1)
     return qsInfo.list
-
   return qsInfo.list.filter(item => item.state === state)
 }
 
@@ -275,7 +275,7 @@ onMounted(() => {
         </div>
 
         <n-result
-          v-if="qsInfo.list.length === 0" title="暂无问卷"
+          v-if="isEmpty(filterQs(activeKey))" title="暂无问卷"
           description="请使用新建问卷，创建问卷进行体验！"
         >
           <template #icon>

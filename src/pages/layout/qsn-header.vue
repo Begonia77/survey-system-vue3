@@ -90,18 +90,19 @@ const handleSelect = (key) => {
       <n-image class="logo" fit="fill" :src="logo" />
     </n-grid-item>
     <n-grid-item :span="8">
-      <n-menu v-model:value="state.activeKey" class="cen" mode="horizontal" :options="menuOptions" />
+      <n-menu v-model:value="state.activeKey" style="font-size: 18px;" class="cen" mode="horizontal" :options="menuOptions" />
     </n-grid-item>
     <n-grid-item :span="1">
       <div v-if="state.currentUser" class="cen">
         <n-dropdown trigger="click" :options="state.userHandle" @select="handleSelect">
-          <n-button>{{ state.currentUser }}</n-button>
+          <a style="border: none; color: #fff; font-size: 18px;">{{ state.currentUser }}
+          </a>
         </n-dropdown>
       </div>
       <div v-else class="cen">
-        <span @click="$router.push('/login')">登录 </span>
-        <span>|</span>
-        <span @click="$router.push('/register')"> 注册</span>
+        <a @click="$router.push('/login')">登录 </a>
+        <span style="padding: 0 5px;">|</span>
+        <a @click="$router.push('/register')"> 注册</a>
       </div>
     </n-grid-item>
   </n-grid>
@@ -123,7 +124,10 @@ const handleSelect = (key) => {
     align-items: center;
   }
 }
-
+a {
+  // 变成手指
+  cursor: pointer;
+}
 .logo {
   // margin-left: 25px;
   height: 30px;

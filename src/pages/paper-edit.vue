@@ -289,7 +289,7 @@ const submitEdit = () => {
     state.qsInfo.state = 0
     state.qsInfo.surveyId = null
     state.qsInfo.createdTime = null
-    state.qsInfo.createdUserId = null
+    state.qsInfo.createdUserId = +localStorage.getItem('userId')
     state.qsInfo.questionList.forEach((question) => {
       question.surveyId = null
       question.questionId = null
@@ -302,6 +302,7 @@ const submitEdit = () => {
   }
   else if (paperId) {
     // 编辑问卷
+    state.qsInfo.createdUserId = +localStorage.getItem('userId')
     state.qsInfo.questionList.forEach((question) => {
       if (typeof question.questionId === 'string') {
         question.questionId = null
@@ -327,6 +328,7 @@ const submitEdit = () => {
     // 新建问卷
     state.submitPaper.surveyTitle = state.qsInfo.surveyTitle
     state.submitPaper.remark = state.qsInfo.remark
+    state.submitPaper.createdUserId = +localStorage.getItem('userId')
     state.submitPaper.questionList = []
     state.qsInfo.questionList.forEach((question) => {
       const temp = {
@@ -461,10 +463,10 @@ const goBack = () => {
             <n-spin size="large" />&nbsp;&nbsp;
             正在为您生成题目，请稍等...
           </div>
-          <div v-show="!saveDialog && !state.waitting">
+          <div v-show="saveDialog && !state.waitting">
             这是我为您提供的题目：
           </div>
-          <div v-show="saveDialog && !state.waitting" class="title">
+          <div v-show="!saveDialog && !state.waitting" class="title">
             <div>目前还没有您的提问！</div>
             <div>快发送问卷标题或者问题关键词给我吧！</div>
             <div>我会随机给您生成问题，供您选择！</div>

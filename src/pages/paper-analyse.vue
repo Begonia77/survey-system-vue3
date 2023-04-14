@@ -8,18 +8,6 @@ import { paperInfo } from '../api/paper-info'
 
 const route = useRoute()
 const paperId = route.query.id
-// 帮我分析下面的问卷，一百字左右的简要分析。
-// 标题: '大学生熬夜情况调查',
-//     [{单选题: : '您通常每周熬夜几次？',提交人数: 25,
-//         答案: [{ 选项: '1-2',选择人数: 7,},
-//           {选项: '3-5',选择人数: 16, },
-//           { 选项: '6-7',选择人数: 2,},],},
-//       {多选题: '您熬夜后的身体状况如何？',submit_person: 25,
-//       答案: [{选项: '疲劳',选择人数: 16,},
-//           { 选项: '头痛',选择人数: 10,},
-//           {选项: '精神状态不佳',选择人数: 22,},], },
-//       {填空题: '还会继续熬夜吗？',
-//         答案: [{option: '会',},{option: '不会',},{option: '不会',},{option: '不会',},{option: '不会',},{option: '会',},{option: '可能会',},{option: '会',},{option: '应该不会',},{option: '可能会',},{option: '应该会',},{option: '可能不会',},{option: '不会',},{option: '可能不会',},{option: '会',},{option: '可能不会',},{option: '不会',},{option: '可能不会',},{option: '会',},{option: '可能会',},{option: '可能不会',},{option: '会',},{option: '会',},{option: '不知道',},{option: '可能会',}],},]
 
 const router = useRouter()
 const paper = reactive({
@@ -31,114 +19,8 @@ const paper = reactive({
   state: 1,
   analysis: null,
   count_question: 3,
-  count_fill_in: 1,
-  questionList: [
-    {
-      surveyId: 7,
-      questionId: 37,
-      question: '您目前单身吗？',
-      questionOrder: 1,
-      type: 1,
-      remark: null,
-      content: null,
-      optionList: [
-        {
-          questionId: 37,
-          optionId: 58,
-          content: '是',
-          count: 6,
-        },
-        {
-          questionId: 37,
-          optionId: 59,
-          content: '否',
-          count: 2,
-        },
-      ],
-    },
-    {
-      surveyId: 7,
-      questionId: 23,
-      question: '您认为大学生恋爱的最大困难是什么？',
-      questionOrder: 2,
-      type: 1,
-      remark: null,
-      content: null,
-      optionList: [
-        {
-          questionId: 23,
-          optionId: 60,
-          content: '时间和学业压力',
-          count: 2,
-        },
-        {
-          questionId: 23,
-          optionId: 61,
-          content: '经济压力',
-          count: 0,
-        },
-        {
-          questionId: 23,
-          optionId: 62,
-          content: '家庭的反对或不支持',
-          count: 4,
-        },
-        {
-          questionId: 23,
-          optionId: 63,
-          content: '空间和住宿问题',
-          count: 1,
-        },
-        {
-          questionId: 23,
-          optionId: 64,
-          content: '社交压力和舆论压力',
-          count: 1,
-        },
-      ],
-    },
-    {
-      surveyId: 7,
-      questionId: 38,
-      question: '您觉得恋爱最重要的是什么？',
-      questionOrder: 3,
-      type: 2,
-      remark: null,
-      content: null,
-      optionList: [
-        {
-          questionId: 38,
-          optionId: 65,
-          content: '互相理解',
-          count: 2,
-        },
-        {
-          questionId: 38,
-          optionId: 66,
-          content: '浪漫',
-          count: 1,
-        },
-        {
-          questionId: 38,
-          optionId: 67,
-          content: '金钱',
-          count: 1,
-        },
-        {
-          questionId: 38,
-          optionId: 68,
-          content: '外表',
-          count: 2,
-        },
-        {
-          questionId: 38,
-          optionId: 69,
-          content: '其他',
-          count: 2,
-        },
-      ],
-    },
-  ],
+  count_fill_in: 10,
+  questionList: [],
 })
 const state = reactive({
   chatGpt: '',
@@ -169,7 +51,9 @@ const getChatGpt = async () => {
 }
 // 返回上一级
 const goBack = () => {
-  router.go(-1)
+  router.push({
+    name: 'paper',
+  })
 }
 onMounted(async () => {
   await getPaperInfo()
@@ -199,13 +83,13 @@ onMounted(async () => {
         <span>{{ paper.surveyTitle }}(报告)</span>
       </div>
       <div class="gpt">
-        <div v-if="state.chatGpt !== '' && !state.waitting">
+        <div v-if="state.chatGpt && !state.waitting">
           <h3>以下是基于您的问卷结果的分析报告：</h3>
           <div>
             {{ state.chatGpt }}
           </div>
         </div>
-        <div v-else-if="state.chatGpt === '' && !state.waitting">
+        <div v-else-if="!state.chatGpt && !state.waitting">
           <h2>点击重新分析即可获取分析报告！</h2>
         </div>
         <div v-show="state.waitting" class="wait">

@@ -166,7 +166,7 @@ const fillFinish = async () => {
     }
     state.num = state.num + 1
   })
-  // await getPapersList(state.ans)
+  await getPapersList(state.ans)
   state.isFinish = true
   console.log(state)
 }

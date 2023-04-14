@@ -50,12 +50,11 @@ function postPaperModel(id) {
 
 function postPaperDelete(id) {
   return request({
-    url: '/Survey/UpdateSurveyState',
+    url: '/Survey/DeleteSurveyById',
     method: 'post',
     // 传递的参数
     data: {
       surveyId: id,
-      state: 0,
     },
   })
 }
