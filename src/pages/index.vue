@@ -15,9 +15,9 @@ import QsnFooter from '../pages/layout/qsn-footer.vue'
             <router-view />
           </n-layout-content>
         </n-layout>
-        <n-layout-footer>
+        <!-- <n-layout-footer>
           <QsnFooter />
-        </n-layout-footer>
+        </n-layout-footer> -->
       </n-layout>
     </n-space>
   </div>
@@ -30,12 +30,12 @@ import QsnFooter from '../pages/layout/qsn-footer.vue'
   line-height: 60px;
 }
 .he {
-  height: calc(100vh - 103px)
+  height: calc(100vh - 60px)
 }
-.n-layout-footer {
-  background: #545c64;
-  padding: 10px;
-}
+// .n-layout-footer {
+//   background: #545c64;
+//   padding: 10px;
+// }
 
 .n-layout-sider {
   background: #E9EEF3;

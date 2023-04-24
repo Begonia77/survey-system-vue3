@@ -13,11 +13,13 @@ const router = useRouter()
 
 const route = useRoute()
 const paperId = route.query.id
+const isModel = route.query.isModel
 
 // 各种状态
 const state = reactive({
   submitPaper: {},
   compRefList: [],
+  isModel,
   waitting: false,
   updataTitle: false,
   updataRemark: false,
@@ -34,7 +36,7 @@ const state = reactive({
     questionList: [],
   },
 })
-
+console.log(state)
 // gpt相关
 const saveDialog = ref([])
 
@@ -300,6 +302,31 @@ const submitEdit = () => {
     })
     paperInfo.postCreatePaper(state.qsInfo)
   }
+  else if (state.isModel) {
+    // 创建模板
+    state.submitPaper.state = 4
+    state.submitPaper.surveyTitle = state.qsInfo.surveyTitle
+    state.submitPaper.remark = state.qsInfo.remark
+    state.submitPaper.createdUserId = +localStorage.getItem('userId')
+    state.submitPaper.questionList = []
+    state.qsInfo.questionList.forEach((question) => {
+      const temp = {
+        questionOrder: question.questionOrder,
+        question: question.question,
+        type: question.type,
+        optionList: [],
+      }
+      if (question.type === 1 || question.type === 2) {
+        question.optionList.forEach((option) => {
+          temp.optionList.push({
+            content: option.content,
+          })
+        })
+      }
+      state.submitPaper.questionList.push(temp)
+    })
+    paperInfo.postCreatePaper(state.submitPaper)
+  }
   else if (paperId) {
     // 编辑问卷
     state.qsInfo.createdUserId = +localStorage.getItem('userId')
@@ -497,9 +524,12 @@ const goBack = () => {
         <div class="user">
           <n-input-group>
             <span style="line-height: 35px; margin-right: 8px;">关键词</span>
-            <n-input v-model:value="state.search" :style="{ width: '50%' }" placeholder="请输入关键词" :allow-input="noSideSpace" />
+            <n-input v-model:value="state.search" :style="{ width: '40%' }" placeholder="请输入关键词" :allow-input="noSideSpace" />
             <n-button type="primary" ghost @click="searchKeyword(state.search)">
-              搜索
+              生成选择题
+            </n-button>
+            <n-button type="primary" ghost @click="searchKeyword(state.search)">
+              生成填空题
             </n-button>
           </n-input-group>
         </div>
@@ -570,7 +600,7 @@ const goBack = () => {
 
   .user {
     padding: 10px;
-    margin: 0 0 10px 40px;
+    margin: 0 0 10px 10px;
   }
 
   .tip {

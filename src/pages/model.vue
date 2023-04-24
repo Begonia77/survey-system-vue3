@@ -41,6 +41,12 @@ const onSearch = () => {
     getAllModelList()
   }
 }
+const onCreateNewModel = () => {
+  router.push({
+    name: 'paperEdit',
+    query: { isModel: true },
+  })
+}
 onMounted(() => {
   getAllModelList()
 })
@@ -56,17 +62,10 @@ onMounted(() => {
       </n-button>
     </n-input-group>
 
-    <n-result
-      v-if="qsInfo.list.length === 0" title="暂无模板"
-      description="在我的问卷中创建模板，可进行体验！"
-    >
-      <template #icon>
-        <div style="width: 400px; margin-top: 20px;">
-          <NImage object-fit="contain" width="400" :src="Kong" />
-        </div>
-      </template>
-    </n-result>
     <n-grid x-gap="80" y-gap="40" :cols="9">
+      <n-grid-item :span="3" class="new-card" @click="onCreateNewModel">
+        点击创建模板 +
+      </n-grid-item>
       <n-grid-item v-for="item in qsInfo.list" :key="item.surveyId" :span="3" class="card">
         <div class="title">
           <a class="tt" @click="prePaper(item.surveyId)">{{ item.surveyTitle }}</a>
@@ -89,7 +88,19 @@ onMounted(() => {
 a {
   cursor: pointer;
 }
-
+.new-card {
+  border-radius: 10px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  background-color: rgba(255,255,255,0.6);
+  height: 220px;
+  padding: 10px 26px;
+    border: dashed 1px #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    cursor: pointer;
+}
 .card {
   background-color: #fff;
   border-radius: 10px;

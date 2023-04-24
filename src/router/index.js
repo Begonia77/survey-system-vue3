@@ -28,6 +28,11 @@ const routes = [
     component: () => import('../pages/paper-view.vue'),
   },
   {
+    path: '/paper/chatgpt',
+    name: 'paperChatgpt',
+    component: () => import('../pages/paper-chatgpt.vue'),
+  },
+  {
     path: '/paper/edit',
     name: 'paperEdit',
     component: () => import('../pages/paper-edit.vue'),

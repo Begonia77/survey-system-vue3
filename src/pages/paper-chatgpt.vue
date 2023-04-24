@@ -9,14 +9,6 @@ const router = useRouter()
 const route = useRoute()
 const paperId = route.query.id
 
-// 根据问卷id获取问卷信息
-// const getPaperInfo = async () => {
-//   const res = await getPaperInfoById(paperId);
-//   if (res.code === 200) {
-//     paperInfo = res.data;
-//   }
-// }
-
 const state = reactive({
   paperInfo: {} as any,
 })
@@ -43,6 +35,14 @@ const formRef = ref<FormInst | null>(null)
 const goBack = () => {
   router.go(-1)
 }
+const onEditPaper = () => {
+  router.push({
+    name: 'paperEdit',
+    query: {
+      id: paperId,
+    },
+  })
+}
 onMounted(() => {
   getPaperInfo()
 })
@@ -57,7 +57,7 @@ onMounted(() => {
             <a class="goback" @click="goBack()">返回</a>
           </n-grid-item>
           <n-grid-item :span="14">
-            <span class="title">预览问卷</span>
+            <span class="title">预览生成的问卷</span>
           </n-grid-item>
         </n-grid>
       </n-layout-header>
@@ -66,6 +66,16 @@ onMounted(() => {
           <div class="head">
             <div class="title">
               {{ state.paperInfo.surveyTitle }}
+              <div class="btn">
+                <n-button type="info" style="padding: 15px; font-size: 15px;" @click="goBack()">
+                  不满意，返回上一页
+                </n-button>
+              </div>
+              <div class="btn2">
+                <n-button type="success" style="padding: 15px; font-size: 15px;" @click="onEditPaper">
+                  满意，编辑此问卷
+                </n-button>
+              </div>
             </div>
             <div class="des">
               {{ state.paperInfo.remark }}
@@ -170,6 +180,18 @@ onMounted(() => {
         font-size: 20px;
         font-weight: bold;
         text-align: center;
+        position: relative;
+
+        .btn {
+          position: absolute;
+          left: 60px;
+          top: 0;
+        }
+        .btn2 {
+          position: absolute;
+          right: 90px;
+          top: 0;
+        }
       }
 
       .des {

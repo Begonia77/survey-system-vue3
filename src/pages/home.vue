@@ -1,6 +1,7 @@
 <script setup>
 import { reactive } from 'vue'
-import { NButton, NCarousel, NImage } from 'naive-ui'
+import { NButton, NCarousel, NImage, useMessage } from 'naive-ui'
+import { useRouter } from 'vue-router'
 import modelJpg from '../assets/model.jpg'
 import typePng from '../assets/type.png'
 import paperJpg from '../assets/paper.jpg'
@@ -9,10 +10,55 @@ import tableJpg from '../assets/table.jpg'
 import chat1Jpg from '../assets/chat1.png'
 import chat2Jpg from '../assets/chat2.png'
 
+const message = useMessage()
+const router = useRouter()
+
 const state = reactive({
   userCount: '20',
   paperCount: '40',
+  isShowChatGpt: false,
+  chatGptTitle: '',
+  chatGptCount: null,
+  isLoading: false,
+  chatGptPaperId: null,
 })
+const newGptPaper = () => {
+  // $router.push({ name: 'gpt' })
+  if (state.chatGptTitle === '') {
+    message.error('请输入调查问卷标题')
+  }
+  else if (state.chatGptCount <= 0 || state.chatGptCount > 10) {
+    message.error('请输入1-10之间的题目数量')
+  }
+  else {
+    message.loading('正在生成，请等待...')
+    state.isLoading = true
+    console.log(state.chatGptTitle, state.chatGptCount)
+    // TODO: 调用后端接口
+    setTimeout(() => {
+      state.isLoading = false
+      message.success('生成成功，请去查看')
+      localStorage.setItem('chatGptPaperId', state.chatGptPaperId)
+    }, 1000)
+  }
+  state.chatGptTitle = ''
+  state.chatGptCount = null
+}
+const cancelGptPaper = () => {
+  state.isShowChatGpt = false
+  state.chatGptTitle = ''
+  state.chatGptCount = null
+}
+const onViewNewPaper = () => {
+  // 取出本地存储的问卷id
+  state.chatGptPaperId = localStorage.getItem('chatGptPaperId')
+  if (state.isLoading)
+    message.loading('正在生成问卷，请等待...')
+  else if (!state.chatGptPaperId || state.chatGptPaperId === 'null')
+    message.error('您还没有生成问卷')
+  else
+    router.push({ name: 'paperChatgpt', query: { id: state.chatGptPaperId } })
+}
 </script>
 
 <template>
@@ -26,16 +72,22 @@ const state = reactive({
         <div>内置chatGPT返回随机问题，供用户挑选</div>
         <div>使用chatGPT进行智能分析问卷，使用户更了解被调查者的需求与情况</div>
       </div>
-      <NButton
-        type="info"
-        style="width: 15%; height: 50px; background: #067bef"
-        @click="$router.push({ name: 'paper' })"
-      >
-        <span style="font-size: larger">开始体验&nbsp;&nbsp;<i
-          style="font-weight: bolder"
-          class="el-icon-right"
-        /></span>
-      </NButton>
+      <div class="gpt-btn">
+        <NButton
+          type="info"
+          style="padding: 25px; background: #067bef; margin-right: 50px;"
+          @click="state.isShowChatGpt = true"
+        >
+          <span style="font-size: larger">点击生成一份问卷</span>
+        </NButton>
+        <NButton
+          type="success"
+          style="padding: 25px;"
+          @click="onViewNewPaper"
+        >
+          <span style="font-size: larger">查看生成的问卷</span>
+        </NButton>
+      </div>
     </div>
     <div class="home-main">
       <NImage object-fit="contain" :src="modelJpg" />
@@ -49,12 +101,7 @@ const state = reactive({
         <div>
           <NButton
             type="info"
-            style="justify-content: center;
-                margin-top: 20px;
-                width: 50%;
-                height: 50px;
-                background: white;
-                color: cornflowerblue;"
+            style="justify-content: center; margin-top: 20px; padding: 25px; background: white; color: cornflowerblue;"
             @click="$router.push({ name: 'model' })"
           >
             <span style="font-size: larger">浏览模板&nbsp;&nbsp;<i
@@ -112,10 +159,25 @@ const state = reactive({
         >
       </NCarousel>
     </div>
-    <div class="home-footer">
+    <!-- <div class="home-footer">
       <span class="hf-txt">平台用户数量已达到<span class="hf-num">{{ state.userCount }}</span>人次<br>总计问卷调查数量<span class="hf-num">{{ state.paperCount }}</span>份，真诚期待您的加入！</span>
-    </div>
+    </div> -->
   </div>
+
+  <n-modal
+    v-model:show="state.isShowChatGpt" :trap-focus="false" :mask-closable="false" preset="dialog"
+    title="请输入相关信息" positive-text="生成问卷" negative-text="取消" @positive-click="newGptPaper"
+    @negative-click="cancelGptPaper"
+  >
+    <div>
+      <div style="padding: 5px; line-height: 35px;">
+        调查问卷标题：<n-input v-model:value="state.chatGptTitle" placeholder="请输入调查问卷标题" clearable />
+      </div>
+      <div style="padding: 5px; line-height: 35px;">
+        题目数（不大于10）：<n-input-number v-model:value="state.chatGptCount" button-placement="both" placeholder="请输入生成题目数量" :min="1" :max="10" />
+      </div>
+    </div>
+  </n-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -159,7 +221,11 @@ const state = reactive({
   align-items: center;
   }
 }
-
+.gpt-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .home-main {
   width: 90%;
   display: flex;
