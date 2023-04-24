@@ -1,7 +1,36 @@
-<script setup>
+<script lang="ts" setup>
+import * as echarts from 'echarts'
 import { NButton, NTag } from 'naive-ui'
-import { h, reactive, ref } from 'vue'
-const props = defineProps(['qsAnswer'])
+import { defineProps, h, onMounted, reactive, ref } from 'vue'
+
+interface Props {
+  qsIndex: number
+  countFillIn: number
+  qsAnswer: {
+    surveyId: number
+    questionId: number
+    question: string
+    questionOrder: number
+    type: number
+    remark: string
+    content: string
+    optionList: {
+      questionId: number
+      optionId: number
+      content: string
+      count: number
+    }[]
+  }
+}
+const props = defineProps<Props>()
+console.log('props', props)
+console.log('props.qsIndex', props.qsIndex)
+const state = reactive({
+  label: [] as string[],
+  data1: [] as number[],
+  data2: [] as { name: string; value: number }[],
+  data: [] as any[],
+})
 
 const columns = [
   {
@@ -13,16 +42,24 @@ const columns = [
     key: 'option',
   },
 ]
+console.log(props.qsAnswer)
 // 将数据转换为表格所需的数据格式
+let i = 0
 const createData = () => {
-  const data = []
-  props.qsAnswer.qs_option.forEach((item, index) => {
-    data.push({
-      key: index,
-      index: index + 1,
-      option: item.option,
-    })
-  })
+  const data: any[] = []
+  // const totalCount = props.qsAnswer.optionList.reduce(
+  //   (prev, cur) => prev + cur.count,
+  //   0,
+  // )
+  for (const item of props.qsAnswer.optionList) {
+    state.label.push(item.content)
+    i = i + 1
+    const ans = {
+      index: i,
+      option: item.content,
+    }
+    data.push(ans)
+  }
   return data
 }
 const data = createData()
@@ -31,12 +68,15 @@ const data = createData()
 <template>
   <div>
     <div class="emc-qs-title">
-      <span class="qs-title">{{ props.qsAnswer.qs_order }}.{{ props.qsAnswer.qs_title }}</span>
-      <span v-if="props.qsAnswer.qs_type === '21'" class="qs-tip">[单行文本]</span>
+      <span class="qs-title">{{ props.qsIndex + 1 }}.{{ props.qsAnswer.question }}</span>
       <span
-        v-else-if="props.qsAnswer.qs_type === '22'"
+        v-if="props.qsAnswer.type === 3"
         class="qs-tip"
-      >[多行文本]</span>
+      >[单行填空]</span>
+      <span
+        v-if="props.qsAnswer.type === 4"
+        class="qs-tip"
+      >[多行填空]</span>
     </div>
     <n-data-table
       :bordered="false"
@@ -45,10 +85,10 @@ const data = createData()
       :data="data"
     />
     <div class="ems-qs-footer">
-      <div>
+      <!-- <div>
         <span>提交人数：{{ props.qsAnswer.submit_person }}</span>
-      </div>
-      <div>
+      </div> -->
+      <div class="tag1">
         <NTag type="error">
           表&nbsp;&nbsp;格
         </NTag>
@@ -74,6 +114,12 @@ const data = createData()
   }
 }
 
+.tag1 {
+  width: 850px;
+  display: flex;
+  justify-content: end;
+  margin: 15px auto;
+}
 .ems-qs-footer {
   width: 850px;
   margin: 15px auto;

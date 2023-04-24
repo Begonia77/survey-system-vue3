@@ -4,6 +4,7 @@ import { NButton, NTag } from 'naive-ui'
 import { defineProps, h, onMounted, reactive, ref } from 'vue'
 
 interface Props {
+  qsIndex: number
   countFillIn: number
   qsAnswer: {
     surveyId: number
@@ -133,7 +134,7 @@ onMounted(() => {
 <template>
   <div>
     <div class="emc-qs-title">
-      <span class="qs-title">{{ props.qsAnswer.questionOrder }}.{{ props.qsAnswer.question }}</span>
+      <span class="qs-title">{{ props.qsIndex + 1 }}.{{ props.qsAnswer.question }}</span>
       <span
         v-if="props.qsAnswer.type === 1"
         class="qs-tip"
@@ -165,9 +166,9 @@ onMounted(() => {
       />
     </div>
     <div class="ems-qs-footer">
-      <div>
+      <!-- <div>
         <span>提交人数：{{ props.countFillIn }}</span>
-      </div>
+      </div> -->
       <div>
         <NTag type="info" class="tag">
           柱状图
@@ -208,7 +209,7 @@ onMounted(() => {
   height: 30px;
   line-height: 30px;
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
 
   .tag {
     margin-left: 10px;

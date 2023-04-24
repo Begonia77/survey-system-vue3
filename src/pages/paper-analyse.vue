@@ -11,15 +11,16 @@ const paperId = route.query.id
 
 const router = useRouter()
 const paper = reactive({
-  surveyId: 7,
+
+  surveyId: 8,
   createdUserId: 1,
-  surveyTitle: '恋爱调查问卷',
-  remark: '这是一份测试问卷',
-  createdTime: '2023-04-13 03:45:18',
+  surveyTitle: '测试填空题',
+  remark: '',
+  createdTime: '2023-04-24 02:24:40',
   state: 1,
   analysis: null,
-  count_question: 3,
-  count_fill_in: 10,
+  count_question: 2,
+  count_fill_in: 1,
   questionList: [],
 })
 const state = reactive({
@@ -56,7 +57,7 @@ const goBack = () => {
   })
 }
 onMounted(async () => {
-  await getPaperInfo()
+  // await getPaperInfo()
 
   for (const idx in paper.questionList) {
     if (paper.questionList[idx].type !== 3 && paper.questionList[idx].type !== 4)
@@ -80,7 +81,7 @@ onMounted(async () => {
     </n-layout-header>
     <div class="edit-main">
       <div class="edit-main-title">
-        <span>{{ paper.surveyTitle }}(报告)</span>
+        <h1>{{ paper.surveyTitle }}(报告)</h1>
       </div>
       <div class="gpt">
         <div v-if="state.chatGpt && !state.waitting">
@@ -90,7 +91,7 @@ onMounted(async () => {
           </div>
         </div>
         <div v-else-if="!state.chatGpt && !state.waitting">
-          <h2>点击重新分析即可获取分析报告！</h2>
+          <h3>点击重新分析即可获取分析报告！</h3>
         </div>
         <div v-show="state.waitting" class="wait">
           <n-spin size="large" />&nbsp;&nbsp;
@@ -103,10 +104,10 @@ onMounted(async () => {
         </div>
       </div>
       <div class="edit-main-content">
-        <div v-for="(ans) of ansList" :key="ans.key">
+        <div v-for="(ans, index) in ansList" :key="ans.key">
           <component
             :is="constVal.analysisTypeMap.get(ans.name).comp" :count-fill-in="paper.count_fill_in"
-            :qs-answer="paper.questionList[ans.index]"
+            :qs-answer="paper.questionList[ans.index]" :qs-index="index"
           />
         </div>
       </div>

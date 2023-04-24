@@ -22,24 +22,32 @@ const state = reactive({
   isLoading: false,
   chatGptPaperId: null,
 })
-const newGptPaper = () => {
+const newGptPaper = async () => {
   // $router.push({ name: 'gpt' })
   if (state.chatGptTitle === '') {
     message.error('请输入调查问卷标题')
+    state.isShowChatGpt = false
   }
   else if (state.chatGptCount <= 0 || state.chatGptCount > 10) {
     message.error('请输入1-10之间的题目数量')
+    state.isShowChatGpt = false
   }
   else {
     message.loading('正在生成，请等待...')
     state.isLoading = true
+    state.isShowChatGpt = false
     console.log(state.chatGptTitle, state.chatGptCount)
     // TODO: 调用后端接口
-    setTimeout(() => {
+    const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount).finally(() => {
       state.isLoading = false
       message.success('生成成功，请去查看')
-      localStorage.setItem('chatGptPaperId', state.chatGptPaperId)
-    }, 1000)
+      localStorage.setItem('chatGptPaperId', res.data.data)
+    })
+    // setTimeout(() => {
+    //   state.isLoading = false
+    //   message.success('生成成功，请去查看')
+    //   localStorage.setItem('chatGptPaperId', state.chatGptPaperId)
+    // }, 1000)
   }
   state.chatGptTitle = ''
   state.chatGptCount = null

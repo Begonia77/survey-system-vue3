@@ -35,6 +35,11 @@ const formRef = ref<FormInst | null>(null)
 const goBack = () => {
   router.go(-1)
 }
+const deleteAndGoBack = () => {
+  // 将localStorage中的问卷信息删除
+  localStorage.removeItem('chatGptPaperId')
+  router.go(-1)
+}
 const onEditPaper = () => {
   router.push({
     name: 'paperEdit',
@@ -67,8 +72,8 @@ onMounted(() => {
             <div class="title">
               {{ state.paperInfo.surveyTitle }}
               <div class="btn">
-                <n-button type="info" style="padding: 15px; font-size: 15px;" @click="goBack()">
-                  不满意，返回上一页
+                <n-button type="info" style="padding: 15px; font-size: 15px;" @click="deleteAndGoBack()">
+                  不满意，删除并返回上一页
                 </n-button>
               </div>
               <div class="btn2">

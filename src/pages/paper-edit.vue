@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 // import { FormItemRule, useMessage } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { nanoid } from 'nanoid/async'
+import { isEmpty } from 'lodash-es'
 import { constVal } from '../util/constVal'
 import { paperInfo } from '../api/paper-info'
 import { chatGpt } from '../api/chat-gpt'
@@ -17,6 +18,7 @@ const isModel = route.query.isModel
 
 // 各种状态
 const state = reactive({
+  chatGptType: true,
   submitPaper: {},
   compRefList: [],
   isModel,
@@ -39,6 +41,7 @@ const state = reactive({
 console.log(state)
 // gpt相关
 const saveDialog = ref([])
+console.log(isEmpty(saveDialog.value))
 
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
@@ -50,13 +53,28 @@ const getPaperInfo = async () => {
   // console.log(constVal.qsTypeMap.get(state.qsInfo.questionList[0]).comp)
 }
 
-const searchKeyword = async (keyword) => {
+const choiceKeyword = async (keyword) => {
   state.waitting = true
-  const res = await chatGpt.postChatGptQs(keyword)
+  state.chatGptType = true
+  const res = await chatGpt.postChatGptChoice(keyword)
   if (res.data) {
     saveDialog.value = res.data.questionList
     state.waitting = false
   }
+  // saveDialog.value = [{ title: '题目1', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }, { title: '题目2', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }]
+  // state.waitting = false
+}
+
+const fillKeyword = async (keyword) => {
+  state.waitting = true
+  state.chatGptType = false
+  const res = await chatGpt.postChatGptFill(keyword)
+  if (res.data) {
+    saveDialog.value = res.data.questionList
+    state.waitting = false
+  }
+  // saveDialog.value = [{ title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }]
+  // state.waitting = false
 }
 
 getPaperInfo()
@@ -276,6 +294,32 @@ const gptAddCheckboxQuestion = async (index) => {
     optionList: saveDialog.value[index].optionList,
   })
 }
+const gptAddShortAnswerQuestion = async (index) => {
+  if (state.qsInfo.questionList.length === 0)
+    order = 1
+  else
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
+  state.qsInfo.questionList.push({
+    questionId: await nanoid(),
+    questionOrder: order,
+    question: saveDialog.value[index].title,
+    type: 3,
+    content: null,
+  })
+}
+const gptAddLongAnswerQuestion = async (index) => {
+  if (state.qsInfo.questionList.length === 0)
+    order = 1
+  else
+    order = state.qsInfo.questionList[state.qsInfo.questionList.length - 1].questionOrder + 1
+  state.qsInfo.questionList.push({
+    questionId: await nanoid(),
+    questionOrder: order,
+    question: saveDialog.value[index].title,
+    type: 4,
+    content: null,
+  })
+}
 
 const submitEdit = () => {
   // for (const comp of state.compRefList.value) {
@@ -486,24 +530,24 @@ const goBack = () => {
     <n-grid-item :span="8">
       <div class="chat">
         <div class="gpt">
-          <div v-show="state.waitting" class="wait">
+          <div v-if="state.waitting" class="wait">
             <n-spin size="large" />&nbsp;&nbsp;
             正在为您生成题目，请稍等...
           </div>
-          <div v-show="saveDialog && !state.waitting">
+          <div v-show="!isEmpty(saveDialog) && !state.waitting">
             这是我为您提供的题目：
           </div>
-          <div v-show="!saveDialog && !state.waitting" class="title">
+          <div v-show="isEmpty(saveDialog) && !state.waitting" class="title">
             <div>目前还没有您的提问！</div>
             <div>快发送问卷标题或者问题关键词给我吧！</div>
             <div>我会随机给您生成问题，供您选择！</div>
           </div>
-          <div v-for="(item, index) of saveDialog" v-show="saveDialog !== undefined && !state.waitting" :key="item.title" :item="item.title" :index="index" class="item">
-            <n-grid :x-gap="6" :cols="6" @mouseenter="gptShow(index)" @mouseleave="state.gpt[index] = false">
+          <div v-for="(item, index) of saveDialog" v-show="!isEmpty(saveDialog) && !state.waitting" :key="item.title" :item="item.title" :index="index">
+            <n-grid v-if="state.chatGptType" :x-gap="6" :cols="6" class="item" @mouseenter="gptShow(index)" @mouseleave="state.gpt[index] = false">
               <n-grid-item :span="4">
-                {{ index + 1 }}、{{ item.title }}
+                &nbsp;&nbsp;{{ index + 1 }}、{{ item.title }}
                 <div v-for="(option, x) of item.optionList" :key="option.text" :option="option.text" :index="x">
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ convertNumToLetter(x + 1) }}、{{ option.text }}
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ convertNumToLetter(x + 1) }}、{{ option.text }}
                 </div>
               </n-grid-item>
               <n-grid-item :span="2" class="handle">
@@ -519,16 +563,33 @@ const goBack = () => {
                 </div>
               </n-grid-item>
             </n-grid>
+            <div v-if="!state.chatGptType" style="min-height: 75px; margin-left: 20px; margin-top:5px" @mouseenter="gptShow(index)" @mouseleave="state.gpt[index] = false">
+              <div>
+                {{ index + 1 }}、{{ item.title }}
+              </div>
+              <div v-show="state.gpt[index]" class="fill-handle">
+                <div>
+                  <n-button strong secondary round type="success" @click="gptAddShortAnswerQuestion(index)">
+                    添加为单行填空
+                  </n-button>
+                </div>
+                <div>
+                  <n-button strong secondary round type="info" @click="gptAddLongAnswerQuestion(index)">
+                    添加为多行填空
+                  </n-button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="user">
           <n-input-group>
             <span style="line-height: 35px; margin-right: 8px;">关键词</span>
             <n-input v-model:value="state.search" :style="{ width: '40%' }" placeholder="请输入关键词" :allow-input="noSideSpace" />
-            <n-button type="primary" ghost @click="searchKeyword(state.search)">
+            <n-button type="primary" ghost @click="choiceKeyword(state.search)">
               生成选择题
             </n-button>
-            <n-button type="primary" ghost @click="searchKeyword(state.search)">
+            <n-button type="primary" ghost @click="fillKeyword(state.search)">
               生成填空题
             </n-button>
           </n-input-group>
@@ -545,6 +606,15 @@ const goBack = () => {
 </template>
 
 <style lang="scss" scoped>
+.fill-handle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 50px;
+  .n-button {
+    margin-bottom: 5px;
+  }
+}
 .chat {
   background: #fff;
   width: 90%;
@@ -555,14 +625,14 @@ const goBack = () => {
   overflow: auto;
 
   .gpt {
-    height: 43vh;
+    height: 47vh;
     overflow: auto;
     border: 1px solid #ccc;
     background: #fdfdfd;
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;
-    padding-top: 30px;
+    padding-top: 20px;
     .wait {
       display: flex;
       justify-content: center;
@@ -581,7 +651,6 @@ const goBack = () => {
     }
 
     .item {
-      padding: 0 20px;
       margin-top: 10px;
       min-height: 80px;
 
