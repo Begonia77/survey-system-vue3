@@ -172,7 +172,7 @@ const cancelGptPaper = () => {
 const onViewNewPaper = () => {
   // 取出本地存储的问卷id
   state.chatGptPaperId = localStorage.getItem('chatGptPaperId')
-  state.chatGptPaperId = 1
+  state.chatGptPaperId = 24
   if (state.isLoading)
     message.loading('正在生成问卷，请等待...')
   else if (!state.chatGptPaperId || state.chatGptPaperId === 'null' || state.chatGptPaperId === 'undefined')

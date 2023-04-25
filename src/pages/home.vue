@@ -46,7 +46,7 @@ const newGptPaper = async () => {
     setTimeout(() => {
       state.isLoading = false
       message.success('生成成功，请去查看')
-      localStorage.setItem('chatGptPaperId', '22')
+      localStorage.setItem('chatGptPaperId', '24')
     }, 7000)
   }
   state.chatGptTitle = ''
