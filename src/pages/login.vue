@@ -24,7 +24,7 @@ const onClickLogin = () => {
       message.success('登录成功')
     }
     else {
-      message.error('登录失败')
+      message.error('账号或密码有误，登录失败')
     }
   })
 }
