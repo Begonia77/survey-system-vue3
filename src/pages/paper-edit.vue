@@ -18,6 +18,7 @@ const isModel = route.query.isModel
 
 // 各种状态
 const state = reactive({
+  getChatGpt: true,
   chatGptType: true,
   submitPaper: {},
   compRefList: [],
@@ -31,7 +32,7 @@ const state = reactive({
   search: '',
   qsInfo: {
     surveyId: -1,
-    surveyTitle: '请输入标题',
+    surveyTitle: '',
     remark: '',
     state: 0,
     count_question: 0,
@@ -54,27 +55,48 @@ const getPaperInfo = async () => {
 }
 
 const choiceKeyword = async (keyword) => {
-  state.waitting = true
-  state.chatGptType = true
-  const res = await chatGpt.postChatGptChoice(keyword)
-  if (res.data) {
-    saveDialog.value = res.data.questionList
-    state.waitting = false
+  if (state.getChatGpt) {
+    state.getChatGpt = false
+    state.waitting = true
+    state.chatGptType = true
+    const res = await chatGpt.postChatGptChoice(keyword)
+    if (res.data) {
+      saveDialog.value = res.data.questionList
+      state.waitting = false
+      await setTimeout(() => {
+        state.getChatGpt = true
+      }, 5000)
+    }
+  }
+  else if (!state.getChatGpt) {
+    message.loading('请勿频繁请求')
   }
   // saveDialog.value = [{ title: '题目1', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }, { title: '题目2', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }]
   // state.waitting = false
 }
 
 const fillKeyword = async (keyword) => {
-  state.waitting = true
-  state.chatGptType = false
-  const res = await chatGpt.postChatGptFill(keyword)
-  if (res.data) {
-    saveDialog.value = res.data.questionList
-    state.waitting = false
+  if (state.getChatGpt) {
+    state.getChatGpt = false
+    state.waitting = true
+    state.chatGptType = false
+    const res = await chatGpt.postChatGptFill(keyword)
+    if (res.data) {
+      saveDialog.value = res.data.questionList
+      state.waitting = false
+      await setTimeout(() => {
+        state.getChatGpt = true
+      }, 5000)
+    }
+    // saveDialog.value = [{ title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }]
+    // state.waitting = false
+    // setTimeout(() => {
+    //   state.getChatGpt = true
+    // }, 5000)
   }
-  // saveDialog.value = [{ title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }]
-  // state.waitting = false
+  else if (!state.getChatGpt) {
+    message.loading('请勿频繁请求')
+  }
 }
 
 getPaperInfo()
@@ -370,6 +392,10 @@ const submitEdit = () => {
       state.submitPaper.questionList.push(temp)
     })
     paperInfo.postCreatePaper(state.submitPaper)
+    router.push({
+      name: 'model',
+    })
+    return
   }
   else if (paperId) {
     // 编辑问卷
@@ -438,7 +464,8 @@ const goBack = () => {
         <a @click="goBack()">返回</a>
       </n-grid-item>
       <n-grid-item :span="12" class="title">
-        <span>编辑问卷</span>
+        <span v-if="state.isModel">编辑模板</span>
+        <span v-else>编辑问卷</span>
       </n-grid-item>
       <n-grid-item :span="2" class="submitBtn">
         <n-button type="success" @click="submitEdit">
@@ -487,7 +514,7 @@ const goBack = () => {
         <div class="contain">
           <div class="head">
             <div class="title" @click="state.updataTitle = true">
-              {{ state.qsInfo.surveyTitle }}
+              问卷标题：{{ state.qsInfo.surveyTitle }}
             </div>
             <n-modal
               v-model:show="state.updataTitle" :trap-focus="false" :mask-closable="false" preset="dialog"
@@ -597,8 +624,9 @@ const goBack = () => {
         <div class="tip">
           <div>Tip：</div>
           <div>发送问卷的标题或者问题关键词，会随机为您推荐题目。</div>
-          <div>点击题目右边的按钮，选择需要的题目添加为单选题或者多选题。</div>
+          <div>点击题目周围的按钮，选择需要的题目添加进自己的问卷。</div>
           <div>可多次获取随机的题目。</div>
+          <div>但请勿频繁请求。</div>
         </div>
       </div>
     </n-grid-item>

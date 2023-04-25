@@ -57,7 +57,7 @@ const goBack = () => {
   })
 }
 onMounted(async () => {
-  // await getPaperInfo()
+  await getPaperInfo()
 
   for (const idx in paper.questionList) {
     if (paper.questionList[idx].type !== 3 && paper.questionList[idx].type !== 4)

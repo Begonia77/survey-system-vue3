@@ -3,6 +3,7 @@ import { defineComponent, h, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import logo from '../../assets/logo.png'
+import logo2 from '../../assets/logo2.png'
 
 const router = useRouter()
 const message = useMessage()
@@ -86,20 +87,27 @@ const handleSelect = (key) => {
 
 <template>
   <n-grid x-gap="12" :cols="10">
-    <n-grid-item :span="1">
-      <n-image class="logo" fit="fill" :src="logo" />
+    <n-grid-item :span="2">
+      <div class="logo111">
+        <n-image class="logo2" fit="fill" :src="logo2" />
+      </div>
     </n-grid-item>
-    <n-grid-item :span="8">
+    <n-grid-item :span="1">
+      <div class="logo111">
+        <n-image class="logo" fit="fill" :src="logo" />
+      </div>
+    </n-grid-item>
+    <n-grid-item :span="4">
       <n-menu v-model:value="state.activeKey" style="font-size: 18px;" class="cen" mode="horizontal" :options="menuOptions" />
     </n-grid-item>
-    <n-grid-item :span="1">
-      <div v-if="state.currentUser" class="cen">
+    <n-grid-item :span="3">
+      <div v-if="state.currentUser" class="cen" style="padding-left: 70px">
         <n-dropdown trigger="click" :options="state.userHandle" @select="handleSelect">
-          <a style="border: none; color: #fff; font-size: 18px;">{{ state.currentUser }}
+          <a style="border: none; color: #fff; font-size: 18px;">欢迎您！{{ state.currentUser }}
           </a>
         </n-dropdown>
       </div>
-      <div v-else class="cen">
+      <div v-else class="cen" style="padding-left: 70px">
         <a @click="$router.push('/login')">登录 </a>
         <span style="padding: 0 5px;">|</span>
         <a @click="$router.push('/register')"> 注册</a>
@@ -128,11 +136,23 @@ a {
   // 变成手指
   cursor: pointer;
 }
+.logo111 {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding-right: 90px;
+}
 .logo {
   // margin-left: 25px;
-  height: 30px;
-  width: 30px;
-  margin: 15px 30px;
+  height: 60px;
+  width: 60px;
+  // margin: 15px 30px;
+}
+.logo2 {
+  // margin-left: 25px;
+  height: 40px;
+  width: 40px;
+  margin: 8px 5px;
 }
 
 ::v-deep .n-menu.n-menu--horizontal .n-menu-item-content .n-menu-item-content-header a {

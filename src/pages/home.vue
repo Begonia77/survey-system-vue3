@@ -73,11 +73,12 @@ const onViewNewPaper = () => {
   <div class="main-container">
     <div class="home-title">
       <div class="ht-1">
-        智能问卷系统
+        问卷通
       </div>
       <div class="ht-2">
         <div>为有问卷调查需求的人们提供多方位的服务</div>
         <div>内置chatGPT返回随机问题，供用户挑选</div>
+        <div>chatGPT根据问卷标题可生成一份问卷</div>
         <div>使用chatGPT进行智能分析问卷，使用户更了解被调查者的需求与情况</div>
       </div>
       <div class="gpt-btn">
@@ -222,7 +223,7 @@ const onViewNewPaper = () => {
     font-size: 25px;
     font-weight: 500;
     color: #99a9bf;
-    padding-bottom: 40px;
+    padding-bottom: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;

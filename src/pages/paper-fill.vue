@@ -5,6 +5,8 @@ import type { FormInst } from 'naive-ui'
 import { FormItemRule, useMessage } from 'naive-ui'
 import { paperInfo } from '../api/paper-info'
 import { getPapersList } from '../api/fill'
+import logo from '../assets/logo.png'
+import logo2 from '../assets/logo2.png'
 
 const route = useRoute()
 const paperId = route.query.id
@@ -180,7 +182,16 @@ onMounted(() => {
     <n-layout>
       <n-layout-header>
         <n-grid :cols="24">
-          <n-grid-item :span="7" />
+          <n-grid-item :span="6">
+            <div class="logo111">
+              <n-image class="logo2" fit="fill" :src="logo2" />
+            </div>
+          </n-grid-item>
+          <n-grid-item :span="1">
+            <div class="logo111">
+              <n-image class="logo" fit="fill" :src="logo" />
+            </div>
+          </n-grid-item>
           <n-grid-item :span="10">
             <span class="title">填写问卷</span>
           </n-grid-item>
@@ -263,6 +274,24 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.logo111 {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding-right: 90px;
+}
+.logo {
+  // margin-left: 25px;
+  height: 60px;
+  width: 60px;
+  // margin: 15px 30px;
+}
+.logo2 {
+  // margin-left: 25px;
+  height: 40px;
+  width: 40px;
+  margin: 8px 5px;
+}
 .tip {
   //垂直水平居中
   display: flex;
