@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { h, onMounted, reactive, ref } from 'vue'
+import { activate, h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import { useClipboard } from '@vueuse/core'
@@ -324,7 +324,6 @@ onMounted(() => {
               <a @click="prePaper(item.surveyId)">预览问卷</a>
             </n-popover>
             <span>
-              答卷：{{ item.count_fill_in }} <i />
               创建时间：{{ item.createdTime }} <i />
               <n-tag v-if="constVal.UN_PUBLISH.value === item.state" type="warning">
                 未发布

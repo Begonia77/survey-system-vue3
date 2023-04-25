@@ -18,6 +18,7 @@ const isModel = route.query.isModel
 
 // 各种状态
 const state = reactive({
+  notGpt: false,
   getChatGpt: true,
   chatGptType: true,
   submitPaper: {},
@@ -55,18 +56,44 @@ const getPaperInfo = async () => {
 }
 
 const choiceKeyword = async (keyword) => {
-  if (state.getChatGpt) {
+  if (state.getChatGpt && !state.notGpt) {
     state.getChatGpt = false
     state.waitting = true
     state.chatGptType = true
-    const res = await chatGpt.postChatGptChoice(keyword)
-    if (res.data) {
-      saveDialog.value = res.data.questionList
+    // const res = await chatGpt.postChatGptChoice(keyword)
+    // if (res.data) {
+    //   saveDialog.value = res.data.questionList
+    //   state.waitting = false
+    //   await setTimeout(() => {
+    //     state.getChatGpt = true
+    //   }, 5000)
+    // }
+
+    setTimeout(() => {
+      saveDialog.value = [{ title: '您在哪些销售渠道中购买过服装？', optionList: [{ text: '实体店' }, { text: '电商平台（如淘宝、京东）' }, { text: '品牌官网' }, { text: '社交媒体平台（如Instagram、微信公众号）' }, { text: '二手市场平台（如闲鱼、vintage复古店）' }] }, { title: '您更倾向于购买哪种面料的服装？', optionList: [{ text: '棉质' }, { text: '涤纶' }, { text: '羊毛' }, { text: '丝绸' }, { text: '麻质' }, { text: '没有特别偏好' }] }]
       state.waitting = false
-      await setTimeout(() => {
-        state.getChatGpt = true
-      }, 5000)
-    }
+      state.getChatGpt = true
+      state.notGpt = true
+    }, 3000)
+  }
+  else if (state.getChatGpt && state.notGpt) {
+    state.getChatGpt = false
+    state.waitting = true
+    state.chatGptType = true
+    // const res = await chatGpt.postChatGptChoice(keyword)
+    // if (res.data) {
+    //   saveDialog.value = res.data.questionList
+    //   state.waitting = false
+    //   await setTimeout(() => {
+    //     state.getChatGpt = true
+    //   }, 5000)
+    // }
+
+    setTimeout(() => {
+      saveDialog.value = [{ title: '在您过去一年的服装消费中，您预算的年均支出在什么范围内？', optionList: [{ text: '1000元以下' }, { text: '1000-3000元之间' }, { text: '3000-5000元之间' }, { text: '5000-8000元之间' }, { text: '8000元以上' }] }, { title: '您是否愿意为了可持续/环保服装支付更高的价格？', optionList: [{ text: '是，愿意支付更高价格 ' }, { text: '不一定，取决于服装材料、品质、设计等多个因素 ' }, { text: '否，不愿意支付更高价格' }] }]
+      state.waitting = false
+      state.getChatGpt = true
+    }, 3000)
   }
   else if (!state.getChatGpt) {
     message.loading('请勿频繁请求')
@@ -80,19 +107,19 @@ const fillKeyword = async (keyword) => {
     state.getChatGpt = false
     state.waitting = true
     state.chatGptType = false
-    const res = await chatGpt.postChatGptFill(keyword)
-    if (res.data) {
-      saveDialog.value = res.data.questionList
+    // const res = await chatGpt.postChatGptFill(keyword)
+    // if (res.data) {
+    //   saveDialog.value = res.data.questionList
+    //   state.waitting = false
+    //   await setTimeout(() => {
+    //     state.getChatGpt = true
+    //   }, 5000)
+    // }
+    setTimeout(() => {
+      saveDialog.value = [{ title: '您最常购买服装的场合是？', optionList: null }, { title: '您在购买服装时最注重的因素是？', optionList: null }, { title: '您希望我们的服装品牌在哪些方面提供更好的服务或体验？', optionList: null }, { title: '当您考虑购买可持续/环保服装时，您最看重的是？', optionList: null }, { title: '您平时从哪里获取关于服装搭配或时尚潮流的灵感或建议？', optionList: null }]
       state.waitting = false
-      await setTimeout(() => {
-        state.getChatGpt = true
-      }, 5000)
-    }
-    // saveDialog.value = [{ title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }, { title: '期望从事的职业', optionList: null }, { title: '目前的就业状态', optionList: null }]
-    // state.waitting = false
-    // setTimeout(() => {
-    //   state.getChatGpt = true
-    // }, 5000)
+      state.getChatGpt = true
+    }, 3000)
   }
   else if (!state.getChatGpt) {
     message.loading('请勿频繁请求')
@@ -653,7 +680,7 @@ const goBack = () => {
   overflow: auto;
 
   .gpt {
-    height: 47vh;
+    height: 45vh;
     overflow: auto;
     border: 1px solid #ccc;
     background: #fdfdfd;

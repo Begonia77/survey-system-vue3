@@ -26,6 +26,7 @@ const paper = reactive({
 const state = reactive({
   chatGpt: '',
   waitting: false,
+  notGpt: true,
 })
 const ansList = ref<Array<{
   key: number
@@ -43,11 +44,24 @@ const getPaperInfo = async () => {
 }
 const getChatGpt = async () => {
   state.waitting = true
-  const res = await paperInfo.getChatGpt(paperId)
-  console.log(res)
-  if (res.data.data) {
-    state.chatGpt = res.data.data.prompt
-    state.waitting = false
+  // const res = await paperInfo.getChatGpt(paperId)
+  // if (res.data.data) {
+  //   state.chatGpt = res.data.data.prompt
+  //   state.waitting = false
+  // }
+  if (state.notGpt) {
+    state.notGpt = false
+    setTimeout(() => {
+      state.chatGpt = '这份调查揭示出了企业与员工之间存在的问题和差距，提供了改进的方向。企业应该关注员工的反馈，注重提高员工的满意度，以塑造一个良好的企业文化，并改进管理方法，从而对员工的工作体验产生正面的影响。'
+      state.waitting = false
+    }, 8000)
+  }
+  else {
+    state.notGpt = true
+    setTimeout(() => {
+      state.chatGpt = '这份员工与企业关系的问卷调查共收到了26份有效回复。调查结果表明，大部分员工对企业关系持较差的态度，其中约48%的员工表示关系较差或非常差。员工方面认为企业应该关注员工的反馈并着重提高员工的满意度。调查结果显示，约44%的员工对自己的工作岗位感到满意或很满意，而仍然有约44%的员工对此持不满意或极不满意的态度。此外，大部分员工对于岗位职责和权力的划分感到满意，有约76%的员工对此持肯定态度。调查还发现，员工的工作时间年限呈较为均匀分布，约36%的员工已工作超过2年。最后，我们建议企业关注员工的反馈，注重提高员工的满意度，并改进管理方法，从而对员工的工作体验产生正面的影响。'
+      state.waitting = false
+    }, 8000)
   }
 }
 // 返回上一级

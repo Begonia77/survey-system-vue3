@@ -38,16 +38,16 @@ const newGptPaper = async () => {
     state.isShowChatGpt = false
     console.log(state.chatGptTitle, state.chatGptCount)
     // TODO: 调用后端接口
-    const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount).finally(() => {
-      state.isLoading = false
-      message.success('生成成功，请去查看')
-      localStorage.setItem('chatGptPaperId', res.data.data)
-    })
-    // setTimeout(() => {
+    // const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount).finally(() => {
     //   state.isLoading = false
     //   message.success('生成成功，请去查看')
-    //   localStorage.setItem('chatGptPaperId', state.chatGptPaperId)
-    // }, 1000)
+    //   localStorage.setItem('chatGptPaperId', res.data.data)
+    // })
+    setTimeout(() => {
+      state.isLoading = false
+      message.success('生成成功，请去查看')
+      localStorage.setItem('chatGptPaperId', '22')
+    }, 7000)
   }
   state.chatGptTitle = ''
   state.chatGptCount = null
@@ -65,7 +65,7 @@ const onViewNewPaper = () => {
   else if (!state.chatGptPaperId || state.chatGptPaperId === 'null')
     message.error('您还没有生成问卷')
   else
-    router.push({ name: 'paperChatgpt', query: { id: state.chatGptPaperId } })
+    router.push({ name: 'paperChatgpt', query: { id: +state.chatGptPaperId } })
 }
 </script>
 
