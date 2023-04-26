@@ -9,6 +9,7 @@ import Kong from '../assets/kong.jpg'
 import { constVal } from '../util/constVal'
 import { getPapersList } from '../api/all-paper'
 import { update } from '../api/update-paper'
+import { chatGpt } from '../api/chat-gpt'
 
 const menuOptions = [
   {
@@ -87,10 +88,9 @@ const copyLink = (url: string) => {
   dialog.success({
     title: '问卷链接',
     content: url,
-    positiveText: '复制并关闭',
+    positiveText: '关闭',
     onPositiveClick: async () => {
       await copy(url)
-      message.success('复制成功')
     },
   })
 }
@@ -139,8 +139,12 @@ const prePaper = (id: number) => {
   })
 }
 
+const fetchChatGptNewPaper = async () => {
+  const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount)
+  localStorage.setItem('chatGptPaperId', res.data.data.surveyId)
+  message.success('生成成功，请去查看')
+}
 const newGptPaper = async () => {
-  // $router.push({ name: 'gpt' })
   if (state.chatGptTitle === '') {
     message.error('请输入调查问卷标题')
     state.isShowChatGpt = false
@@ -153,12 +157,10 @@ const newGptPaper = async () => {
     message.loading('正在生成，请等待...')
     state.isLoading = true
     state.isShowChatGpt = false
-    console.log(state.chatGptTitle, state.chatGptCount)
-    // TODO: 调用后端接口
-    const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount).finally(() => {
+
+    await fetchChatGptNewPaper().finally(() => {
       state.isLoading = false
       message.success('生成成功，请去查看')
-      localStorage.setItem('chatGptPaperId', res.data.data)
     })
   }
   state.chatGptTitle = ''
@@ -172,7 +174,6 @@ const cancelGptPaper = () => {
 const onViewNewPaper = () => {
   // 取出本地存储的问卷id
   state.chatGptPaperId = localStorage.getItem('chatGptPaperId')
-  state.chatGptPaperId = 24
   if (state.isLoading)
     message.loading('正在生成问卷，请等待...')
   else if (!state.chatGptPaperId || state.chatGptPaperId === 'null' || state.chatGptPaperId === 'undefined')

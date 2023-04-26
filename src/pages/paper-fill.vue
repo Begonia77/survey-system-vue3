@@ -37,7 +37,6 @@ const getPaperInfo = async () => {
     else
       state.surveyForm[item.questionId] = ''
   })
-  console.log(state.qsInfo)
 }
 
 const qsInfo = reactive<any>({
@@ -143,11 +142,10 @@ const sortedQuestions = computed(() => {
 })
 const formRef = ref(null)
 const fillFinish = async () => {
-  console.log(state.surveyForm)
   Object.keys(state.surveyForm).forEach((key) => {
     if (state.surveyForm[key] === null) {
-      // message.error('请填写完整问卷')
-      console.log('请填写完整问卷')
+      message.error('请填写完整问卷')
+      return
     }
     state.ans.surveyId = state.qsInfo.surveyId
     state.ans.createdUserId = 1
@@ -170,7 +168,6 @@ const fillFinish = async () => {
   })
   await getPapersList(state.ans)
   state.isFinish = true
-  console.log(state)
 }
 onMounted(() => {
   getPaperInfo()

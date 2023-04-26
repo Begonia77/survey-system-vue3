@@ -15,9 +15,6 @@ import QsnFooter from '../pages/layout/qsn-footer.vue'
             <router-view />
           </n-layout-content>
         </n-layout>
-        <!-- <n-layout-footer>
-          <QsnFooter />
-        </n-layout-footer> -->
       </n-layout>
     </n-space>
   </div>

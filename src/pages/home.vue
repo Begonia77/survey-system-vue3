@@ -9,6 +9,7 @@ import allJpg from '../assets/all.jpg'
 import tableJpg from '../assets/table.jpg'
 import chat1Jpg from '../assets/chat1.png'
 import chat2Jpg from '../assets/chat2.png'
+import { chatGpt } from '../api/chat-gpt'
 
 const message = useMessage()
 const router = useRouter()
@@ -22,8 +23,12 @@ const state = reactive({
   isLoading: false,
   chatGptPaperId: null,
 })
+const fetchChatGptNewPaper = async () => {
+  const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount)
+  localStorage.setItem('chatGptPaperId', res.data.data.surveyId)
+  message.success('生成成功，请去查看')
+}
 const newGptPaper = async () => {
-  // $router.push({ name: 'gpt' })
   if (state.chatGptTitle === '') {
     message.error('请输入调查问卷标题')
     state.isShowChatGpt = false
@@ -36,18 +41,11 @@ const newGptPaper = async () => {
     message.loading('正在生成，请等待...')
     state.isLoading = true
     state.isShowChatGpt = false
-    console.log(state.chatGptTitle, state.chatGptCount)
-    // TODO: 调用后端接口
-    // const res = await chatGpt.postChatGptNewPaper(state.chatGptTitle, state.chatGptCount).finally(() => {
-    //   state.isLoading = false
-    //   message.success('生成成功，请去查看')
-    //   localStorage.setItem('chatGptPaperId', res.data.data)
-    // })
-    setTimeout(() => {
+
+    await fetchChatGptNewPaper().finally(() => {
       state.isLoading = false
       message.success('生成成功，请去查看')
-      localStorage.setItem('chatGptPaperId', '24')
-    }, 7000)
+    })
   }
   state.chatGptTitle = ''
   state.chatGptCount = null
@@ -168,9 +166,6 @@ const onViewNewPaper = () => {
         >
       </NCarousel>
     </div>
-    <!-- <div class="home-footer">
-      <span class="hf-txt">平台用户数量已达到<span class="hf-num">{{ state.userCount }}</span>人次<br>总计问卷调查数量<span class="hf-num">{{ state.paperCount }}</span>份，真诚期待您的加入！</span>
-    </div> -->
   </div>
 
   <n-modal

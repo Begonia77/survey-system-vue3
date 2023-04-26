@@ -21,8 +21,7 @@ qsTypeMap.set(4, { desc: '多行填空', value: 4, comp: LongAnswerQuestion })
 const analysisTypeMap = new Map()
 analysisTypeMap.set(0, { desc: '只有表格', value: 0, comp: TableOnly })
 analysisTypeMap.set(1, { desc: '三个图', value: 1, comp: TableChart })
-// const baseUrl = 'http://survey.wryte.top:53368/#'
-const baseUrl = 'http://127.0.0.1:5173/#'
+const baseUrl = 'http://survey.wryte.top:53368/#'
 
 export const constVal = {
   qsTypeMap,

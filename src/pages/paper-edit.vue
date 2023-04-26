@@ -18,7 +18,6 @@ const isModel = route.query.isModel
 
 // 各种状态
 const state = reactive({
-  notGpt: false,
   getChatGpt: true,
   chatGptType: true,
   submitPaper: {},
@@ -40,10 +39,8 @@ const state = reactive({
     questionList: [],
   },
 })
-console.log(state)
 // gpt相关
 const saveDialog = ref([])
-console.log(isEmpty(saveDialog.value))
 
 // 根据问卷id获取问卷信息
 const getPaperInfo = async () => {
@@ -52,54 +49,25 @@ const getPaperInfo = async () => {
     state.isNewPaper = false
     state.qsInfo = res.data.data
   }
-  // console.log(constVal.qsTypeMap.get(state.qsInfo.questionList[0]).comp)
 }
 
 const choiceKeyword = async (keyword) => {
-  if (state.getChatGpt && !state.notGpt) {
+  if (state.getChatGpt) {
     state.getChatGpt = false
     state.waitting = true
     state.chatGptType = true
-    // const res = await chatGpt.postChatGptChoice(keyword)
-    // if (res.data) {
-    //   saveDialog.value = res.data.questionList
-    //   state.waitting = false
-    //   await setTimeout(() => {
-    //     state.getChatGpt = true
-    //   }, 5000)
-    // }
-
-    setTimeout(() => {
-      saveDialog.value = [{ title: '您在哪些销售渠道中购买过服装？', optionList: [{ text: '实体店' }, { text: '电商平台（如淘宝、京东）' }, { text: '品牌官网' }, { text: '社交媒体平台（如Instagram、微信公众号）' }, { text: '二手市场平台（如闲鱼、vintage复古店）' }] }, { title: '您更倾向于购买哪种面料的服装？', optionList: [{ text: '棉质' }, { text: '涤纶' }, { text: '羊毛' }, { text: '丝绸' }, { text: '麻质' }, { text: '没有特别偏好' }] }]
+    const res = await chatGpt.postChatGptChoice(keyword)
+    if (res.data) {
+      saveDialog.value = res.data.questionList
       state.waitting = false
-      state.getChatGpt = true
-      state.notGpt = true
-    }, 3000)
-  }
-  else if (state.getChatGpt && state.notGpt) {
-    state.getChatGpt = false
-    state.waitting = true
-    state.chatGptType = true
-    // const res = await chatGpt.postChatGptChoice(keyword)
-    // if (res.data) {
-    //   saveDialog.value = res.data.questionList
-    //   state.waitting = false
-    //   await setTimeout(() => {
-    //     state.getChatGpt = true
-    //   }, 5000)
-    // }
-
-    setTimeout(() => {
-      saveDialog.value = [{ title: '在您过去一年的服装消费中，您预算的年均支出在什么范围内？', optionList: [{ text: '1000元以下' }, { text: '1000-3000元之间' }, { text: '3000-5000元之间' }, { text: '5000-8000元之间' }, { text: '8000元以上' }] }, { title: '您是否愿意为了可持续/环保服装支付更高的价格？', optionList: [{ text: '是，愿意支付更高价格 ' }, { text: '不一定，取决于服装材料、品质、设计等多个因素 ' }, { text: '否，不愿意支付更高价格' }] }]
-      state.waitting = false
-      state.getChatGpt = true
-    }, 3000)
+      await setTimeout(() => {
+        state.getChatGpt = true
+      }, 5000)
+    }
   }
   else if (!state.getChatGpt) {
     message.loading('请勿频繁请求')
   }
-  // saveDialog.value = [{ title: '题目1', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }, { title: '题目2', optionList: [{ text: '选项1' }, { text: '选项2' }, { text: '选项3' }] }]
-  // state.waitting = false
 }
 
 const fillKeyword = async (keyword) => {
@@ -107,19 +75,14 @@ const fillKeyword = async (keyword) => {
     state.getChatGpt = false
     state.waitting = true
     state.chatGptType = false
-    // const res = await chatGpt.postChatGptFill(keyword)
-    // if (res.data) {
-    //   saveDialog.value = res.data.questionList
-    //   state.waitting = false
-    //   await setTimeout(() => {
-    //     state.getChatGpt = true
-    //   }, 5000)
-    // }
-    setTimeout(() => {
-      saveDialog.value = [{ title: '您最常购买服装的场合是？', optionList: null }, { title: '您在购买服装时最注重的因素是？', optionList: null }, { title: '您希望我们的服装品牌在哪些方面提供更好的服务或体验？', optionList: null }, { title: '当您考虑购买可持续/环保服装时，您最看重的是？', optionList: null }, { title: '您平时从哪里获取关于服装搭配或时尚潮流的灵感或建议？', optionList: null }]
+    const res = await chatGpt.postChatGptFill(keyword)
+    if (res.data) {
+      saveDialog.value = res.data.questionList
       state.waitting = false
-      state.getChatGpt = true
-    }, 3000)
+      await setTimeout(() => {
+        state.getChatGpt = true
+      }, 5000)
+    }
   }
   else if (!state.getChatGpt) {
     message.loading('请勿频繁请求')
@@ -206,28 +169,6 @@ const updateQuestion = () => {
   })
 }
 
-// 将saveDialog数组里的options里添加optionId并且将text转化为content
-// const saveDialogWithId = computed(() => {
-//   const temp = []
-//   saveDialog.value.forEach((item, index) => {
-//     const tempItem = {
-//       questionId: index + 1,
-//       question: item.title,
-//       type: 1,
-//       value: null,
-//       optionList: [],
-//     }
-//     item.optionList.forEach((option, optionIndex) => {
-//       tempItem.optionList.push({
-//         optionId: optionIndex + 1,
-//         content: option.text,
-//       })
-//     })
-//     temp.push(tempItem)
-//   })
-//   return temp
-// })
-// 将1、2、3转化为A、B、C
 const convertNumToLetter = (num) => {
   const letter = String.fromCharCode(64 + num)
   return letter

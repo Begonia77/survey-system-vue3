@@ -23,8 +23,6 @@ interface Props {
   }
 }
 const props = defineProps<Props>()
-console.log('props', props)
-console.log('props.qsIndex', props.qsIndex)
 const state = reactive({
   label: [] as string[],
   data1: [] as number[],
@@ -42,7 +40,6 @@ const columns = [
     key: 'option',
   },
 ]
-console.log(props.qsAnswer)
 // 将数据转换为表格所需的数据格式
 let i = 0
 const createData = () => {
