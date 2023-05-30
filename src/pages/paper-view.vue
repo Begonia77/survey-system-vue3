@@ -9,14 +9,6 @@ const router = useRouter()
 const route = useRoute()
 const paperId = route.query.id
 
-// 根据问卷id获取问卷信息
-// const getPaperInfo = async () => {
-//   const res = await getPaperInfoById(paperId);
-//   if (res.code === 200) {
-//     paperInfo = res.data;
-//   }
-// }
-
 const state = reactive({
   paperInfo: {} as any,
 })
@@ -27,17 +19,9 @@ const getPaperInfo = async () => {
 }
 const sortedQuestions = computed(() => {
   return state.paperInfo.questionList?.slice().sort((item) => {
-    return item.questionOrder - item.questionOrder
+    return item.questionOrder
   })
 })
-// const sortedQuestions = computed(() => {
-//   return state.paperInfo.map((item: any) => {
-//     item.questions.sort((a: any, b: any) => {
-//       return a.question_order - b.question_order
-//     })
-//     return item
-//   })
-// })
 const formRef = ref<FormInst | null>(null)
 // 返回上一级的方法
 const goBack = () => {

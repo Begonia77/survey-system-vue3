@@ -8,10 +8,12 @@ import { getPapersList } from '../api/fill'
 import logo from '../assets/logo.png'
 import logo2 from '../assets/logo2.png'
 
+const message = useMessage()
 const route = useRoute()
 const paperId = route.query.id
 
 const state = reactive({
+  isReturn: false,
   isFinish: false,
   num: 0,
   qsInfo: {} as any,
@@ -39,102 +41,6 @@ const getPaperInfo = async () => {
   })
 }
 
-const qsInfo = reactive<any>({
-  list: [] as any[],
-})
-
-// qsInfo.list = {
-//   model: [{
-//     surveyId: 1,
-//     survey_title: '大学生熬夜情况调查',
-//     remark: '大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查大学生熬夜情况调查',
-//     num: 100,
-//     created_user_id: '李四',
-//     ansNum: 100,
-//     created_time: '2023-05-01 12:00:00',
-//     state: 2,
-//     // 以下是题目列表
-//     questions: [{
-//       questionId: 1,
-//       question_order: 1,
-//       question: '你的性别是？',
-//       type: 1,
-//       value: null,
-//       options: [{
-//         optionId: 1,
-//         content: '男',
-//       },
-//       {
-//         optionId: 2,
-//         content: '女',
-//       }],
-//     },
-//     {
-//       questionId: 2,
-//       question_order: 6,
-//       question: '你的年级是？',
-//       type: 3,
-//       content: null,
-//     },
-//     {
-//       questionId: 3,
-//       question_order: 3,
-//       question: '您晚上休息的时间是在：',
-//       type: 1,
-//       value: null,
-//       options: [{
-//         optionId: 1,
-//         content: '10：00之前',
-//       },
-//       {
-//         optionId: 2,
-//         content: '10：00---11：00',
-//       },
-//       {
-//         optionId: 3,
-//         content: '11：00---12：00',
-//       },
-//       {
-//         optionId: 4,
-//         content: '12：00之后',
-//       }],
-//     },
-//     {
-//       questionId: 4,
-//       question_order: 2,
-//       question: '熬夜的原因？',
-//       type: 2,
-//       value: null,
-//       options: [{
-//         optionId: 1,
-//         content: '学习',
-//       },
-//       {
-//         optionId: 2,
-//         content: '工作',
-//       },
-//       {
-//         optionId: 3,
-//         content: '娱乐',
-//       },
-//       {
-//         optionId: 4,
-//         content: '其他',
-//       }],
-//     }],
-//   }],
-// }
-
-// 写一个计算属性，将qsInfo.list.model里面的四个questions对象根据question_order进行排序，并返回
-// const sortedQuestions = computed(() => {
-//   return qsInfo.list.model.map((item: any) => {
-//     item.questions.sort((a: any, b: any) => {
-//       return a.question_order - b.question_order
-//     })
-//     return item
-//   })
-// })
-
 const sortedQuestions = computed(() => {
   return state.qsInfo.questionList?.slice().sort((item) => {
     return item.questionOrder - item.questionOrder
@@ -142,32 +48,39 @@ const sortedQuestions = computed(() => {
 })
 const formRef = ref(null)
 const fillFinish = async () => {
+  state.isReturn = false
   Object.keys(state.surveyForm).forEach((key) => {
-    if (state.surveyForm[key] === null) {
-      message.error('请填写完整问卷')
-      return
-    }
-    state.ans.surveyId = state.qsInfo.surveyId
-    state.ans.createdUserId = 1
-    if (state.qsInfo?.questionList[state.num]?.type === 2 || state.qsInfo?.questionList[state.num]?.type === 1) {
-      const content = Array.isArray(unref(state.surveyForm[key])) ? `${unref(state.surveyForm[key]).join(',')},` : `${state.surveyForm[key]},`
-      state.ans.questionList.push({
-        questionId: +key,
-        type: state.qsInfo?.questionList[state.num]?.type,
-        content,
-      })
+    if (state.surveyForm[key] === '') {
+      state.isReturn = true
     }
     else {
-      state.ans.questionList.push({
-        questionId: +key,
-        type: state.qsInfo?.questionList[state.num]?.type,
-        content: state.surveyForm[key],
-      })
+      state.ans.surveyId = state.qsInfo.surveyId
+      state.ans.createdUserId = 1
+      if (state.qsInfo?.questionList[state.num]?.type === 2 || state.qsInfo?.questionList[state.num]?.type === 1) {
+        const content = Array.isArray(unref(state.surveyForm[key])) ? `${unref(state.surveyForm[key]).join(',')},` : `${state.surveyForm[key]},`
+        state.ans.questionList.push({
+          questionId: +key,
+          type: state.qsInfo?.questionList[state.num]?.type,
+          content,
+        })
+      }
+      else {
+        state.ans.questionList.push({
+          questionId: +key,
+          type: state.qsInfo?.questionList[state.num]?.type,
+          content: state.surveyForm[key],
+        })
+      }
+      state.num = state.num + 1
     }
-    state.num = state.num + 1
   })
-  await getPapersList(state.ans)
-  state.isFinish = true
+  if (state.isReturn === false) {
+    await getPapersList(state.ans)
+    state.isFinish = true
+  }
+  else {
+    message.error('请填写完整问卷')
+  }
 }
 onMounted(() => {
   getPaperInfo()
@@ -211,9 +124,8 @@ onMounted(() => {
           </div>
           <div class="body">
             <n-form
-              v-for="(question, index) of sortedQuestions" ref="formRef"
-              :key="question.questionId" :question="question.questionId"
-              :index="index"
+              v-for="(question, index) of sortedQuestions" ref="formRef" :key="question.questionId"
+              :question="question.questionId" :index="index"
             >
               <n-grid :cols="24" :x-gap="24" :y-gap="24">
                 <n-form-item-gi
@@ -277,18 +189,21 @@ onMounted(() => {
   align-items: center;
   padding-right: 90px;
 }
+
 .logo {
   // margin-left: 25px;
   height: 60px;
   width: 60px;
   // margin: 15px 30px;
 }
+
 .logo2 {
   // margin-left: 25px;
   height: 40px;
   width: 40px;
   margin: 8px 5px;
 }
+
 .tip {
   //垂直水平居中
   display: flex;
@@ -296,6 +211,7 @@ onMounted(() => {
   align-items: center;
   height: 50vh;
 }
+
 .n-layout-header {
   background: #1e649f;
   height: 60px;

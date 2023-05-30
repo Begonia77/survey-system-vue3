@@ -2,8 +2,9 @@
 import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPapersList } from '../api/all-paper'
-import Kong from '../assets/kong.jpg'
+
 const router = useRouter()
+
 const qsInfo = reactive({
   list: [],
   search: '',

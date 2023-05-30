@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { activate, h, onMounted, reactive, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import { useClipboard } from '@vueuse/core'
@@ -15,9 +15,7 @@ const menuOptions = [
   {
     label: () => h(
       'span',
-      {
-
-      },
+      {},
       { default: () => '全部问卷' },
     ),
     key: -1,
@@ -25,9 +23,7 @@ const menuOptions = [
   {
     label: () => h(
       'span',
-      {
-
-      },
+      {},
       { default: () => '未发布' },
     ),
     key: 0,
@@ -35,9 +31,7 @@ const menuOptions = [
   {
     label: () => h(
       'span',
-      {
-
-      },
+      {},
       { default: () => '已发布' },
     ),
     key: 1,
@@ -45,9 +39,7 @@ const menuOptions = [
   {
     label: () => h(
       'span',
-      {
-
-      },
+      {},
       { default: () => '已结束' },
     ),
     key: 2,
@@ -55,6 +47,7 @@ const menuOptions = [
 ]
 const activeKey = ref(-1)
 const state = reactive({
+  isLoading: false,
   search: '',
   userId: localStorage.getItem('userId'),
   modelRemark: '',
@@ -62,6 +55,9 @@ const state = reactive({
   modelId: 0,
   qsList: [],
   isShowChatGpt: false,
+  chatGptTitle: '',
+  chatGptCount: 0,
+  chatGptPaperId: '0',
 })
 
 const message = useMessage()
@@ -77,7 +73,7 @@ const getAllPaperList = async () => {
   qsInfo.list = res.data.data.filter((item: any) => item.createdUserId === +state.userId!)
 }
 
-// 根据问卷状态state筛选问卷，用计算属性实现, 0未发布，1已发布，2已结束
+// 根据问卷状态state筛选问卷，0未发布，1已发布，2已结束
 const filterQs = (state: number) => {
   if (state === -1)
     return qsInfo.list
@@ -164,22 +160,30 @@ const newGptPaper = async () => {
     })
   }
   state.chatGptTitle = ''
-  state.chatGptCount = null
+  state.chatGptCount = 0
 }
 const cancelGptPaper = () => {
   state.isShowChatGpt = false
   state.chatGptTitle = ''
-  state.chatGptCount = null
+  state.chatGptCount = 0
 }
 const onViewNewPaper = () => {
   // 取出本地存储的问卷id
-  state.chatGptPaperId = localStorage.getItem('chatGptPaperId')
-  if (state.isLoading)
+  state.chatGptPaperId = localStorage.getItem('chatGptPaperId') || '0'
+  if (state.isLoading) {
     message.loading('正在生成问卷，请等待...')
-  else if (!state.chatGptPaperId || state.chatGptPaperId === 'null' || state.chatGptPaperId === 'undefined')
+  }
+  else if (state.chatGptPaperId === '0') {
     message.error('您还没有生成问卷')
-  else
-    router.push({ name: 'paperChatgpt', query: { id: state.chatGptPaperId } })
+  }
+  else {
+    router.push({
+      name: 'paperChatgpt',
+      query: {
+        id: state.chatGptPaperId,
+      },
+    })
+  }
 }
 // 操作问卷
 // 0未发布  1已发布  2已结束  3模板  4删除
@@ -286,17 +290,12 @@ onMounted(() => {
           <h2>问卷列表</h2>
           <div>
             <NButton
-              type="info"
-              style="padding: 20px; background: #067bef; margin-right: 30px;"
+              type="info" style="padding: 20px; background: #067bef; margin-right: 30px;"
               @click="state.isShowChatGpt = true"
             >
               <span @click="state.isShowChatGpt = true">生成一份问卷</span>
             </NButton>
-            <NButton
-              type="success"
-              style="padding: 20px; margin-right: 30px;"
-              @click="onViewNewPaper"
-            >
+            <NButton type="success" style="padding: 20px; margin-right: 30px;" @click="onViewNewPaper">
               <span>查看生成的问卷</span>
             </NButton>
           </div>
@@ -305,10 +304,7 @@ onMounted(() => {
           点击创建新问卷 +
         </div>
 
-        <n-result
-          v-if="isEmpty(filterQs(activeKey))" title="暂无问卷"
-          description="请创建问卷进行体验！"
-        >
+        <n-result v-if="isEmpty(filterQs(activeKey))" title="暂无问卷" description="请创建问卷进行体验！">
           <template #icon>
             <div style="width: 300px; margin-top: 20px;">
               <NImage object-fit="contain" width="300" :src="Kong" />
@@ -339,8 +335,15 @@ onMounted(() => {
           </div>
           <div class="body">
             <span>
-              <n-button v-if="constVal.IS_PUBLISH.value === item.state" class="drop" @click="handleSend(item.surveyId)">发送问卷</n-button>
-              <n-button v-if="constVal.UN_PUBLISH.value !== item.state" class="drop" @click="handleStatistical(item.surveyId)">数据统计</n-button>
+              <n-button v-if="constVal.IS_PUBLISH.value === item.state" class="drop" @click="handleSend(item.surveyId)">
+                发送问卷
+              </n-button>
+              <n-button
+                v-if="constVal.UN_PUBLISH.value !== item.state" class="drop"
+                @click="handleStatistical(item.surveyId)"
+              >
+                数据统计
+              </n-button>
               <n-button class="drop" @click="handleOperate(item.surveyId)">创建为模板</n-button>
             </span>
             <span>
@@ -373,24 +376,25 @@ onMounted(() => {
   </div>
 
   <n-modal
-    v-model:show="state.createModelShow" :trap-focus="false" :mask-closable="false" preset="dialog"
-    title="请输入模板描述" positive-text="确认" negative-text="取消" @positive-click="submitModel()"
-    @negative-click="cancelModel"
+    v-model:show="state.createModelShow" :trap-focus="false" :mask-closable="false" preset="dialog" title="请输入模板描述"
+    positive-text="确认" negative-text="取消" @positive-click="submitModel()" @negative-click="cancelModel"
   >
     <n-input v-model:value="state.modelRemark" type="textarea" placeholder="请输入描述" clearable />
   </n-modal>
 
   <n-modal
-    v-model:show="state.isShowChatGpt" :trap-focus="false" :mask-closable="false" preset="dialog"
-    title="请输入相关信息" positive-text="生成问卷" negative-text="取消" @positive-click="newGptPaper"
-    @negative-click="cancelGptPaper"
+    v-model:show="state.isShowChatGpt" :trap-focus="false" :mask-closable="false" preset="dialog" title="请输入相关信息"
+    positive-text="生成问卷" negative-text="取消" @positive-click="newGptPaper" @negative-click="cancelGptPaper"
   >
     <div>
       <div style="padding: 5px; line-height: 35px;">
         调查问卷标题：<n-input v-model:value="state.chatGptTitle" placeholder="请输入调查问卷标题" clearable />
       </div>
       <div style="padding: 5px; line-height: 35px;">
-        题目数（不大于10）：<n-input-number v-model:value="state.chatGptCount" button-placement="both" placeholder="请输入生成题目数量" :min="1" :max="10" />
+        题目数（不大于10）：<n-input-number
+          v-model:value="state.chatGptCount" button-placement="both" placeholder="请输入生成题目数量"
+          :min="1" :max="10"
+        />
       </div>
     </div>
   </n-modal>
@@ -405,7 +409,6 @@ onMounted(() => {
 
   .cen1 {
     background-color: #f8f8f8;
-    // max-width: 1200px;
     width: 100%;
   }
 }
@@ -419,19 +422,18 @@ a {
   width: 100%;
 
   .title {
-    // 浮动布局，使之左右分布
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   .new-card {
     height: 120px;
     width: 100%;
     margin: 20px 0;
     border-radius: 10px;
     box-shadow: 0 0 4px #ccc;
-  background-color: rgba(255,255,255,0.6);
-    // 虚线
+    background-color: rgba(255, 255, 255, 0.6);
     border: dashed 1px #ccc;
     display: flex;
     justify-content: center;
@@ -439,6 +441,7 @@ a {
     font-size: 25px;
     cursor: pointer;
   }
+
   .card {
     background-color: #f8f8f8;
     height: 120px;

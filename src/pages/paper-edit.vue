@@ -1,7 +1,6 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// import { FormItemRule, useMessage } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { nanoid } from 'nanoid/async'
 import { isEmpty } from 'lodash-es'
@@ -312,14 +311,6 @@ const gptAddLongAnswerQuestion = async (index) => {
 }
 
 const submitEdit = () => {
-  // for (const comp of state.compRefList.value) {
-  //   // if (!comp)
-  //   //   continue
-  //   if (comp.state.isEdit || comp.state.isNew) {
-  //     message.warning('您还有未编辑的题目，无法提交')
-  //     return
-  //   }
-  // }
   if (state.qsInfo.state === 4) {
     // 模板创建问卷
     state.qsInfo.state = 0

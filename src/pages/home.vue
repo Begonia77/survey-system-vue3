@@ -1,7 +1,13 @@
-<script setup>
+<script lang="ts" setup>
 import { reactive } from 'vue'
 import { NButton, NCarousel, NImage, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
+import { AES } from 'crypto-js'
+import Utf8 from 'crypto-js/enc-utf8'
+import Base64 from 'crypto-js/enc-base64'
+import Hex from 'crypto-js/enc-hex'
+import ECB from 'crypto-js/mode-ecb'
+import Pkcs7 from 'crypto-js/pad-pkcs7'
 import modelJpg from '../assets/model.jpg'
 import typePng from '../assets/type.png'
 import paperJpg from '../assets/paper.jpg'

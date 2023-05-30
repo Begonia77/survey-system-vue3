@@ -22,14 +22,7 @@ const sortedQuestions = computed(() => {
     return item.questionOrder - item.questionOrder
   })
 })
-// const sortedQuestions = computed(() => {
-//   return state.paperInfo.map((item: any) => {
-//     item.questions.sort((a: any, b: any) => {
-//       return a.question_order - b.question_order
-//     })
-//     return item
-//   })
-// })
+
 const formRef = ref<FormInst | null>(null)
 // 返回上一级的方法
 const goBack = () => {
@@ -48,8 +41,8 @@ const onEditPaper = () => {
     },
   })
 }
-onMounted(() => {
-  getPaperInfo()
+onMounted(async () => {
+  await getPaperInfo()
 })
 </script>
 
